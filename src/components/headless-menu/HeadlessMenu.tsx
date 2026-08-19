@@ -1,10 +1,15 @@
-import { createContext,  useContext } from "react";
+import { createContext,  useContext, useState } from "react";
+import type {ReactNode} from "react";
 
+// CONTEXT
 type HeadlessMenuContextValue = {
-  
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  toggle: () => void;
+  close: () => void;
 };
 
-const HeadlessMenuContext = createContext<null>(null);
+const HeadlessMenuContext = createContext<HeadlessMenuContextValue | null>(null);
 
 function useHeadlessMenuContext() {
   const context = useContext(HeadlessMenuContext);
@@ -16,4 +21,37 @@ function useHeadlessMenuContext() {
   }
 
   return context;
+}
+
+
+// MENU
+type HeadlessMenuProps = {
+  children: ReactNode;
+};
+
+function HeadlessMenu({
+  children,
+}: HeadlessMenuProps) {
+  const [open, setOpen] = useState(false);
+
+  const toggle = () => {
+    setOpen(!open);
+  };
+
+  const close = () => {
+    setOpen(false);
+  };
+
+  return (
+    <HeadlessMenuContext.Provider
+      value={{
+        open,
+        setOpen,
+        toggle,
+        close,
+      }}
+    >
+      {children}
+    </HeadlessMenuContext.Provider>
+  );
 }
