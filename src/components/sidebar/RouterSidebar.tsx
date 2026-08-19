@@ -13,16 +13,24 @@ import {
 
 import { HeadlessMenu } from "../headless-menu/HeadlessMenu";
 
-
-
 export function RouterSidebar() {
-
-  const location = useLocation();
-  const pathname = location.pathname;
+  const { pathname } = useLocation();
 
   return (
     <HeadlessMenu>
-      <HeadlessMenu.Panel>
+      <DesktopSidebar pathname={pathname} />
+      <MobileSidebar pathname={pathname} />
+    </HeadlessMenu>
+  );
+}
+
+type SidebarProps = {
+  pathname: string;
+};
+
+function DesktopSidebar({ pathname }: SidebarProps) {
+  return (
+   <HeadlessMenu.Panel>
         {({ open }) => (
           <aside
             className={`
@@ -274,11 +282,8 @@ export function RouterSidebar() {
           </aside>
         )}
       </HeadlessMenu.Panel>
-    </HeadlessMenu>
   );
 }
-
-
 
 
 
@@ -368,6 +373,263 @@ function SubNavItem({
       <span className="ml-2">
         {label}
       </span>
+    </NavLink>
+  );
+}
+
+
+function MobileSidebar({ pathname }: SidebarProps) {
+  return (
+    <div className="md:hidden">
+      <nav
+        className="
+          fixed
+          bottom-0
+          left-0
+          right-0
+          z-40
+          grid
+          grid-cols-4
+          border-t
+          border-gray-200
+          bg-white
+          px-2
+          py-2
+          shadow-lg
+        "
+      >
+        <MobileNavItem
+          to="/"
+          label="Домой"
+          icon={<Home size={20} />}
+          active={pathname === "/"}
+        />
+
+        <MobileNavItem
+          to="/users"
+          label="Пользователи"
+          icon={<Users size={20} />}
+          active={pathname === "/users"}
+        />
+
+        <MobileReports pathname={pathname} />
+
+        <MobileNavItem
+          to="/settings"
+          label="Настройки"
+          icon={<Settings size={20} />}
+          active={pathname === "/settings"}
+        />
+      </nav>
+    </div>
+  );
+}
+
+
+
+
+type MobileNavItemProps = {
+  to: string;
+  label: string;
+  icon: ReactNode;
+  active: boolean;
+};
+
+function MobileNavItem({
+  to,
+  label,
+  icon,
+  active,
+}: MobileNavItemProps) {
+  return (
+    <NavLink
+      to={to}
+      className={`
+        flex
+        flex-col
+        items-center
+        justify-center
+        gap-1
+        rounded-md
+        px-1
+        py-2
+        text-xs
+        ${
+          active
+            ? "bg-gray-200 font-semibold"
+            : "hover:bg-gray-100"
+        }
+      `}
+    >
+      {icon}
+
+      <span>{label}</span>
+    </NavLink>
+  );
+}
+
+
+
+
+function MobileReports({ pathname }: SidebarProps) {
+  const active = pathname.startsWith("/reports");
+
+  return (
+    <HeadlessMenu.Dropdown id="mobile-reports">
+      <HeadlessMenu.DropdownTrigger>
+        {({ open, toggle }) => (
+          <button
+            type="button"
+            onClick={toggle}
+            className={`
+              flex
+              w-full
+              flex-col
+              items-center
+              justify-center
+              gap-1
+              rounded-md
+              px-1
+              py-2
+              text-xs
+              ${
+                active
+                  ? "bg-gray-200 font-semibold"
+                  : "hover:bg-gray-100"
+              }
+            `}
+          >
+            <BarChart3 size={20} />
+
+            <span>Отчёты</span>
+          </button>
+        )}
+      </HeadlessMenu.DropdownTrigger>
+
+      <MobileReportsDropdown />
+    </HeadlessMenu.Dropdown>
+  );
+}
+
+function MobileReportsDropdown() {
+  return (
+    <HeadlessMenu.DropdownContent>
+      {({ open, close }) =>
+        open ? (
+          <div
+            className="
+              fixed
+              bottom-0
+              left-0
+              right-0
+              z-50
+              rounded-t-2xl
+              border
+              border-gray-200
+              bg-white
+              shadow-2xl
+            "
+          >
+            {/* Заголовок */}
+            <div
+              className="
+                flex
+                h-14
+                items-center
+                justify-between
+                border-b
+                border-gray-200
+                px-4
+              "
+            >
+              <span className="font-semibold">
+                Отчёты
+              </span>
+
+              <button
+                type="button"
+                onClick={close}
+                className="
+                  flex
+                  h-10
+                  w-10
+                  items-center
+                  justify-center
+                  rounded-md
+                  text-gray-500
+                  hover:bg-gray-100
+                "
+                aria-label="Закрыть"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Подсписок */}
+            <div className="flex flex-col gap-1 p-2">
+              <MobileSubNavItem
+                to="/reports"
+                label="Все отчёты"
+                icon={<BarChart3 size={18} />}
+                close={close}
+              />
+
+              <MobileSubNavItem
+                to="/reports/sales"
+                label="Продажи"
+                icon={<BarChart3 size={18} />}
+                close={close}
+              />
+
+              <MobileSubNavItem
+                to="/reports/finance"
+                label="Финансы"
+                icon={<BarChart3 size={18} />}
+                close={close}
+              />
+            </div>
+          </div>
+        ) : null
+      }
+    </HeadlessMenu.DropdownContent>
+  );
+}
+
+type MobileSubNavItemProps = {
+  to: string;
+  label: string;
+  icon: ReactNode;
+  close: () => void;
+};
+
+function MobileSubNavItem({
+  to,
+  label,
+  icon,
+  close,
+}: MobileSubNavItemProps) {
+  return (
+    <NavLink
+      to={to}
+      onClick={close}
+      className={({ isActive }) => `
+        flex
+        h-12
+        items-center
+        gap-3
+        rounded-md
+        px-3
+        hover:bg-gray-100
+        ${
+          isActive
+            ? "bg-gray-200 font-semibold"
+            : ""
+        }
+      `}
+    >
+      {icon}
+
+      <span>{label}</span>
     </NavLink>
   );
 }
