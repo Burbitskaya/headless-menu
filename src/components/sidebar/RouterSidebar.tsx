@@ -105,100 +105,111 @@ export function RouterSidebar() {
                         menuOpen,
                         toggle,
                         openDropdown,
+                        closeDropdown
                       }) => (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (menuOpen) {
-                              toggle();
-                            }
-                          }}
+                       <div
                           onMouseEnter={() => {
                             if (!menuOpen) {
                               openDropdown();
                             }
                           }}
-                          className={`
-                          flex h-10 w-full
-                          items-center
-                          rounded-md
-                          px-1
-                          hover:bg-gray-100
-                          ${pathname.startsWith("/reports")
-                              ? "bg-gray-200 font-semibold"
-                              : ""
+                           onMouseLeave={() => {
+                            if (!menuOpen) {
+                              closeDropdown();
                             }
-                        `}
+                      
+                          }}
                         >
-                          <span className="flex w-10 shrink-0 justify-center">
-                            <BarChart3 size={20} />
-                          </span>
+<button
+                            type="button"
+                            onClick={() => {
+                              if (menuOpen) {
+                                toggle();
+                              }
+ }}
+                            className={`
+                            flex h-10 w-full
+                            items-center
+                            rounded-md
+                            px-1
+                            hover:bg-gray-100
+                            ${pathname.startsWith("/reports")
+                                ? "bg-gray-200 font-semibold"
+                                : ""
+                              }
 
-                          {menuOpen && (
-                            <>
-                              <span className="ml-2 flex-1 text-left">
-                                Отчёты
-                              </span>
+ `}
+                          >
+                            <span className="flex w-10 shrink-0 justify-center">
+                              <BarChart3 size={20} />
+                            </span>
 
-                              {dropdownOpen ? (
-                                <ChevronLeft size={16} />
-                              ) : (
-                                <ChevronRight size={16} />
-                              )}
-                            </>
-                          )}
-                        </button>
+                            {menuOpen && (
+                              <>
+                                <span className="ml-2 flex-1 text-left">
+                                  Отчёты
+                                </span>
+
+                                {dropdownOpen ? (
+                                  <ChevronLeft size={16} />
+                                ) : (
+                                  <ChevronRight size={16} />
+                                )}
+                              </>
+                            )}
+                          </button>
+
+                          <HeadlessMenu.DropdownContent>
+                            {({
+                              open: dropdownOpen,
+                              menuOpen,
+                              close,
+                            }) =>
+                              dropdownOpen ? (
+                                <div
+                                  className={
+                                    menuOpen
+                                      ? "ml-4 mt-1 flex flex-col gap-1"
+                                      : "absolute left-full top-0 w-52 rounded-md bg-white p-1 shadow-lg"
+                                  }
+                                >
+                                  <SubNavItem
+                                    to="/reports"
+                                    label="Все отчеты"
+                                    icon={<BarChart3 size={18} />}
+                                    active={pathname === "/reports"}
+                                    menuOpen={menuOpen}
+                                    close={close}
+                                  />
+
+                                  <SubNavItem
+                                    to="/reports/sales"
+                                    label="Продажи"
+                                    icon={<BarChart3 size={18} />}
+                                    active={
+                                      pathname === "/reports/sales"
+                                    }
+                                    menuOpen={menuOpen}
+                                    close={close}
+                                  />
+
+                                  <SubNavItem
+                                    to="/reports/finance"
+                                    label="Финансы"
+                                    icon={<BarChart3 size={18} />}
+                                    active={
+                                      pathname === "/reports/finance"
+                                    }
+                                    menuOpen={menuOpen}
+                                    close={close}
+                                  />
+                                </div>
+                              ) : null
+                            }
+                          </HeadlessMenu.DropdownContent>
+                        </div>
                       )}
                     </HeadlessMenu.DropdownTrigger>
-
-                    <HeadlessMenu.DropdownContent>
-                      {({
-                        open: dropdownOpen,
-                        menuOpen,
-                        close,
-                      }) =>
-                        dropdownOpen ? (
-                          <div
-                            className={
-                              menuOpen
-                                ? "ml-4 mt-1 flex flex-col gap-1"
-                                : "absolute left-full top-0 w-52 rounded-md bg-white p-1 shadow-lg"
-                            }
-                          >
-                            <SubNavItem
-                              to="/reports"
-                              label="Все отчеты"
-                              icon={<BarChart3 size={18} />}
-                              active={pathname === "/reports"}
-                              menuOpen={menuOpen}
-                              close={close}
-                            />
-
-                            <SubNavItem
-                              to="/reports/sales"
-                              label="Продажи"
-                              icon={<BarChart3 size={18} />}
-                              active={
-                                pathname === "/reports/sales"
-                              }
-                              menuOpen={menuOpen}
-                              close={close}
-                            />
-
-                            <SubNavItem
-                              to="/reports/finance"
-                              label="Финансы"
-                              icon={<BarChart3 size={18} />}
-                              active={
-                                pathname === "/reports/finance"
-                              }
-                              menuOpen={menuOpen}
-                              close={close}
-                            />
-                          </div>
-                        ) : null
-                      }
-                    </HeadlessMenu.DropdownContent>
 
                   </HeadlessMenu.Dropdown>
                 </div>

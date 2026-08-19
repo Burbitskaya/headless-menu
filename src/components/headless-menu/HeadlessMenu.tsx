@@ -1,4 +1,12 @@
-import { createContext, useContext, useEffect, useId, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+} from "react";
 import type { ReactNode } from "react";
 
 // CONTEXT
@@ -44,56 +52,76 @@ function HeadlessMenuRoot({
   const [openedDropdownId, setOpenedDropdownId] =
     useState<string | null>(null);
 
-  const setOpen = (nextOpen: boolean) => {
+  const setOpen = useCallback((nextOpen: boolean) => {
     setOpenState(nextOpen);
 
     if (!nextOpen) {
       setOpenedDropdownId(null);
     }
-  };
+  }, []);
 
-  const toggle = () => {
-    setOpen(!open);
-  };
+  const toggle = useCallback(() => {
+    setOpenState((currentOpen) => {
+      const nextOpen = !currentOpen;
+      if (!nextOpen) {
+        setOpenedDropdownId(null);
+      }
 
-  const close = () => {
+      return nextOpen;
+    });
+  }, []);
+
+  const close = useCallback(() => {
     setOpen(false);
-  };
+  }, [setOpen]);
 
-  const toggleDropdown = (id: string) => {
-    setOpenedDropdownId(
-      openedDropdownId === id ? null : id,
-    );
-  };
+  const toggleDropdown = useCallback((id: string) => {
+    setOpenedDropdownId((currentId) => (currentId === id ? null : id));
+  }, []);
 
-  const openDropdown = (id: string) => {
+
+  const openDropdown = useCallback((id: string) => {
     setOpenedDropdownId(id);
-  };
+  }, []);
 
-  const closeDropdown = () => {
+
+  const closeDropdown = useCallback(() => {
     setOpenedDropdownId(null);
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      open,
+      setOpen,
+      toggle,
+      close,
+
+      openedDropdownId,
+      setOpenedDropdownId,
+      toggleDropdown,
+      openDropdown,
+      closeDropdown,
+    }),
+    [
+      open,
+      setOpen,
+      toggle,
+      close,
+      openedDropdownId,
+      toggleDropdown,
+      openDropdown,
+      closeDropdown,
+    ],
+  );
 
   return (
     <HeadlessMenuContext.Provider
-      value={{
-        open,
-        setOpen,
-        toggle,
-        close,
-
-        openedDropdownId,
-        setOpenedDropdownId,
-        toggleDropdown,
-        openDropdown,
-        closeDropdown,
-      }}
+      value={value}
     >
       {children}
     </HeadlessMenuContext.Provider>
   );
 }
-
 
 //PANEL
 type PanelProps = {
@@ -193,13 +221,27 @@ function Dropdown({
   const {
     open: menuOpen,
     openDropdown,
+    closeDropdown,
   } = useHeadlessMenuContext();
 
   useEffect(() => {
-    if (menuOpen && active) {
+    if (!menuOpen) {
+      closeDropdown();
+      return;
+    }
+
+    if (active) {
       openDropdown(id);
     }
-  }, [menuOpen, active, id, openDropdown]);
+  }, [
+    menuOpen,
+    active,
+    id,
+    openDropdown,
+    closeDropdown,
+  ]);
+
+  
 
   return (
     <DropdownContext.Provider
