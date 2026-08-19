@@ -1,4 +1,4 @@
-import { createContext, useContext, useId, useState } from "react";
+import { createContext, useContext, useEffect, useId, useState } from "react";
 import type { ReactNode } from "react";
 
 // CONTEXT
@@ -7,9 +7,13 @@ type HeadlessMenuContextValue = {
     setOpen: (open: boolean) => void;
     toggle: () => void;
     close: () => void;
+
     openedDropdownId: string | null;
     setOpenedDropdownId: (id: string | null) => void;
     toggleDropdown: (id: string) => void;
+
+    openDropdown: (id: string) => void;
+    closeDropdown: () => void;
 };
 
 const HeadlessMenuContext = createContext<HeadlessMenuContextValue | null>(null);
@@ -33,40 +37,61 @@ type HeadlessMenuProps = {
 };
 
 function HeadlessMenuRoot({
-    children,
+  children,
 }: HeadlessMenuProps) {
-    const [open, setOpen] = useState(false);
-    const [openedDropdownId, setOpenedDropdownId] = useState<string | null>(null);
+  const [open, setOpenState] = useState(false);
 
-    const toggle = () => {
-        setOpen(!open);
-    };
+  const [openedDropdownId, setOpenedDropdownId] =
+    useState<string | null>(null);
 
-    const close = () => {
-        setOpen(false);
-    };
+  const setOpen = (nextOpen: boolean) => {
+    setOpenState(nextOpen);
 
-    const toggleDropdown = (id: string) => {
-        setOpenedDropdownId(
-            openedDropdownId === id ? null : id,
-        );
-    };
+    if (!nextOpen) {
+      setOpenedDropdownId(null);
+    }
+  };
 
-    return (
-        <HeadlessMenuContext.Provider
-            value={{
-                open,
-                setOpen,
-                toggle,
-                close,
-                openedDropdownId,
-                setOpenedDropdownId,
-                toggleDropdown
-            }}
-        >
-            {children}
-        </HeadlessMenuContext.Provider>
+  const toggle = () => {
+    setOpen(!open);
+  };
+
+  const close = () => {
+    setOpen(false);
+  };
+
+  const toggleDropdown = (id: string) => {
+    setOpenedDropdownId(
+      openedDropdownId === id ? null : id,
     );
+  };
+
+  const openDropdown = (id: string) => {
+    setOpenedDropdownId(id);
+  };
+
+  const closeDropdown = () => {
+    setOpenedDropdownId(null);
+  };
+
+  return (
+    <HeadlessMenuContext.Provider
+      value={{
+        open,
+        setOpen,
+        toggle,
+        close,
+
+        openedDropdownId,
+        setOpenedDropdownId,
+        toggleDropdown,
+        openDropdown,
+        closeDropdown,
+      }}
+    >
+      {children}
+    </HeadlessMenuContext.Provider>
+  );
 }
 
 
@@ -136,7 +161,8 @@ function Item({
 
 //DROPDOWN
 type DropdownContextValue = {
-    id: string;
+  id: string;
+  active: boolean;
 };
 
 const DropdownContext = createContext<DropdownContextValue | null>(null);
@@ -154,49 +180,72 @@ function useDropdownContext() {
 }
 
 type DropdownProps = {
-    id: string;
-    children: ReactNode;
+  id: string;
+  active?: boolean;
+  children: ReactNode;
 };
 
-function Dropdown({ id, children }: DropdownProps) {
-    return (
-        <DropdownContext.Provider value={{ id }}>
-            {children}
-        </DropdownContext.Provider>
-    );
+function Dropdown({
+  id,
+  active = false,
+  children,
+}: DropdownProps) {
+  const {
+    open: menuOpen,
+    openDropdown,
+  } = useHeadlessMenuContext();
+
+  useEffect(() => {
+    if (menuOpen && active) {
+      openDropdown(id);
+    }
+  }, [menuOpen, active, id, openDropdown]);
+
+  return (
+    <DropdownContext.Provider
+      value={{
+        id,
+        active,
+      }}
+    >
+      {children}
+    </DropdownContext.Provider>
+  );
 }
 
 //DROPDOWN TRIGGER
 type DropdownTriggerProps = {
-    children: (state: {
-        open: boolean;
-        menuOpen: boolean;
-        toggle: () => void;
-    }) => ReactNode;
+  children: (state: {
+    open: boolean;
+    menuOpen: boolean;
+    toggle: () => void;
+    openDropdown: () => void;
+    closeDropdown: () => void;
+  }) => ReactNode;
 };
 
 function DropdownTrigger({
-    children,
+  children,
 }: DropdownTriggerProps) {
-    const { id } = useDropdownContext();
+  const { id } = useDropdownContext();
 
-    const {
-        open: menuOpen,
-        openedDropdownId,
-        toggleDropdown,
-    } = useHeadlessMenuContext();
+  const {
+    open: menuOpen,
+    openedDropdownId,
+    toggleDropdown,
+    openDropdown,
+    closeDropdown,
+  } = useHeadlessMenuContext();
 
-    const dropdownOpen = openedDropdownId === id;
+  const dropdownOpen = openedDropdownId === id;
 
-    return (
-        <>
-            {children({
-                open: dropdownOpen,
-                menuOpen,
-                toggle: () => toggleDropdown(id),
-            })}
-        </>
-    );
+  return children({
+    open: dropdownOpen,
+    menuOpen,
+    toggle: () => toggleDropdown(id),
+    openDropdown: () => openDropdown(id),
+    closeDropdown,
+  });
 }
 
 type DropdownContentProps = {
@@ -208,21 +257,21 @@ type DropdownContentProps = {
 }
 
 function DropdownContent({ children }: DropdownContentProps) {
-const { id } = useDropdownContext();
+    const { id } = useDropdownContext();
 
-  const {
-    open: menuOpen,
-    openedDropdownId,
-    setOpenedDropdownId,
-  } = useHeadlessMenuContext();
+    const {
+        open: menuOpen,
+        openedDropdownId,
+        setOpenedDropdownId,
+    } = useHeadlessMenuContext();
 
-  const dropdownOpen = openedDropdownId === id;
+    const dropdownOpen = openedDropdownId === id;
 
-  return children({
+    return children({
         open: dropdownOpen,
         menuOpen,
         close: () => setOpenedDropdownId(null),
-      })
+    })
 }
 
 

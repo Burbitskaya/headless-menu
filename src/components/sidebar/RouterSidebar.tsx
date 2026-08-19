@@ -62,171 +62,168 @@ export function RouterSidebar() {
 
 
 
-             
+
               <nav className="flex flex-col gap-2 p-2 pt-8">
                 <HeadlessMenu.Item
                   id="home"
                   active={pathname === "/"}
                 >
-                  {({ active, open, close }) => (
+                  {({ active, open }) => (
                     <NavItem
                       to="/"
                       label="Домой"
                       icon={<Home size={20} />}
                       open={open}
                       active={active}
-                      close={close}
                     />
                   )}
                 </HeadlessMenu.Item>
 
-               
+
                 <HeadlessMenu.Item
                   id="users"
                   active={pathname === "/users"}
                 >
-                  {({ active, open, close }) => (
+                  {({ active, open }) => (
                     <NavItem
                       to="/users"
                       label="Пользователи"
                       icon={<Users size={20} />}
                       open={open}
                       active={active}
-                      close={close}
                     />
                   )}
                 </HeadlessMenu.Item>
 
-              
-<div className="relative">
-                <HeadlessMenu.Dropdown id="reports">
 
-                  <HeadlessMenu.DropdownTrigger>
-                    {({
-                      open: dropdownOpen,
-                      menuOpen,
-                      toggle,
-                    }) => (
-                      <button
-                        type="button"
-                        onClick={() => {
-        if (menuOpen) {
-          toggle();
-        }
-      }}
-      onMouseEnter={() => {
-        if (!menuOpen && !dropdownOpen) {
-          toggle();
-        }
-      }}
-                        className={`
+                <div className="relative">
+                  <HeadlessMenu.Dropdown id="reports"  active={pathname.startsWith("/reports")}>
+
+                    <HeadlessMenu.DropdownTrigger>
+                      {({
+                        open: dropdownOpen,
+                        menuOpen,
+                        toggle,
+                        openDropdown,
+                      }) => (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (menuOpen) {
+                              toggle();
+                            }
+                          }}
+                          onMouseEnter={() => {
+                            if (!menuOpen) {
+                              openDropdown();
+                            }
+                          }}
+                          className={`
                           flex h-10 w-full
                           items-center
                           rounded-md
                           px-1
                           hover:bg-gray-100
-                          ${
-                            pathname.startsWith("/reports")
+                          ${pathname.startsWith("/reports")
                               ? "bg-gray-200 font-semibold"
                               : ""
-                          }
+                            }
                         `}
-                      >
-                        <span className="flex w-10 shrink-0 justify-center">
-                          <BarChart3 size={20} />
-                        </span>
-
-                        {menuOpen && (
-                          <>
-                            <span className="ml-2 flex-1 text-left">
-                              Отчёты
-                            </span>
-
-                            {dropdownOpen ? (
-                              <ChevronLeft size={16} />
-                            ) : (
-                              <ChevronRight size={16} />
-                            )}
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </HeadlessMenu.DropdownTrigger>
-
-                  <HeadlessMenu.DropdownContent>
-                    {({
-                      open: dropdownOpen,
-                      menuOpen,
-                      close,
-                    }) =>
-                      dropdownOpen ? (
-                        <div
-                          className={
-                            menuOpen
-                              ? "ml-4 flex flex-col gap-1"
-                              : "absolute left-full top-0 ml-2 w-52 rounded-md bg-white p-1 shadow-lg"
-                          }
                         >
-                          <SubNavItem
-                            to="/reports"
-                            label="Все отчеты"
-                            icon={<BarChart3 size={18} />}
-                            active={pathname === "/reports"}
-                            menuOpen={menuOpen}
-                            close={close}
-                          />
+                          <span className="flex w-10 shrink-0 justify-center">
+                            <BarChart3 size={20} />
+                          </span>
 
-                          <SubNavItem
-                            to="/reports/sales"
-                            label="Продажи"
-                            icon={<BarChart3 size={18} />}
-                            active={
-                              pathname === "/reports/sales"
+                          {menuOpen && (
+                            <>
+                              <span className="ml-2 flex-1 text-left">
+                                Отчёты
+                              </span>
+
+                              {dropdownOpen ? (
+                                <ChevronLeft size={16} />
+                              ) : (
+                                <ChevronRight size={16} />
+                              )}
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </HeadlessMenu.DropdownTrigger>
+
+                    <HeadlessMenu.DropdownContent>
+                      {({
+                        open: dropdownOpen,
+                        menuOpen,
+                        close,
+                      }) =>
+                        dropdownOpen ? (
+                          <div
+                            className={
+                              menuOpen
+                                ? "ml-4 mt-1 flex flex-col gap-1"
+                                : "absolute left-full top-0 w-52 rounded-md bg-white p-1 shadow-lg"
                             }
-                            menuOpen={menuOpen}
-                            close={close}
-                          />
+                          >
+                            <SubNavItem
+                              to="/reports"
+                              label="Все отчеты"
+                              icon={<BarChart3 size={18} />}
+                              active={pathname === "/reports"}
+                              menuOpen={menuOpen}
+                              close={close}
+                            />
 
-                          <SubNavItem
-                            to="/reports/finance"
-                            label="Финансы"
-                            icon={<BarChart3 size={18} />}
-                            active={
-                              pathname === "/reports/finance"
-                            }
-                            menuOpen={menuOpen}
-                            close={close}
-                          />
-                        </div>
-                      ) : null
-                    }
-                  </HeadlessMenu.DropdownContent>
+                            <SubNavItem
+                              to="/reports/sales"
+                              label="Продажи"
+                              icon={<BarChart3 size={18} />}
+                              active={
+                                pathname === "/reports/sales"
+                              }
+                              menuOpen={menuOpen}
+                              close={close}
+                            />
 
-                </HeadlessMenu.Dropdown>
-</div>
-               
+                            <SubNavItem
+                              to="/reports/finance"
+                              label="Финансы"
+                              icon={<BarChart3 size={18} />}
+                              active={
+                                pathname === "/reports/finance"
+                              }
+                              menuOpen={menuOpen}
+                              close={close}
+                            />
+                          </div>
+                        ) : null
+                      }
+                    </HeadlessMenu.DropdownContent>
+
+                  </HeadlessMenu.Dropdown>
+                </div>
+
                 <HeadlessMenu.Item
                   id="settings"
                   active={pathname === "/settings"}
                 >
-                  {({ active, open, close }) => (
+                  {({ active, open }) => (
                     <NavItem
                       to="/settings"
                       label="Настройки"
                       icon={<Settings size={20} />}
                       open={open}
                       active={active}
-                      close={close}
                     />
                   )}
                 </HeadlessMenu.Item>
 
               </nav>
 
-      
 
 
-      
+
+
               <div className="mt-auto">
                 <HeadlessMenu.Toggle>
                   {({ open, toggle }) => (
@@ -277,7 +274,6 @@ type NavItemProps = {
   icon: ReactNode;
   open: boolean;
   active: boolean;
-  close: () => void;
 };
 
 function NavItem({
@@ -286,12 +282,10 @@ function NavItem({
   icon,
   open,
   active,
-  close,
 }: NavItemProps) {
   return (
     <NavLink
       to={to}
-      onClick={close}
       className={`
         flex h-10 items-center
         rounded-md

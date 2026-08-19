@@ -1,3 +1,3 @@
  export function SettingsPage() {
-    return<></>;
+    return<>Настройки</>;
  }
