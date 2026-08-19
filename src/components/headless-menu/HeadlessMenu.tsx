@@ -1,209 +1,236 @@
-import { createContext,  useContext, useId, useState } from "react";
-import type {ReactNode} from "react";
+import { createContext, useContext, useId, useState } from "react";
+import type { ReactNode } from "react";
 
 // CONTEXT
 type HeadlessMenuContextValue = {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  toggle: () => void;
-  close: () => void;
-  openedDropdownId: string | null;
-  setOpenedDropdownId: (id: string | null) => void;
-  toggleDropdown: (id: string) => void;
+    open: boolean;
+    setOpen: (open: boolean) => void;
+    toggle: () => void;
+    close: () => void;
+    openedDropdownId: string | null;
+    setOpenedDropdownId: (id: string | null) => void;
+    toggleDropdown: (id: string) => void;
 };
 
 const HeadlessMenuContext = createContext<HeadlessMenuContextValue | null>(null);
 
 function useHeadlessMenuContext() {
-  const context = useContext(HeadlessMenuContext);
+    const context = useContext(HeadlessMenuContext);
 
-  if (!context) {
-    throw new Error(
-      "HeadlessMenu components must be used inside HeadlessMenu",
-    );
-  }
+    if (!context) {
+        throw new Error(
+            "HeadlessMenu components must be used inside HeadlessMenu",
+        );
+    }
 
-  return context;
+    return context;
 }
 
 
 // MENU
 type HeadlessMenuProps = {
-  children: ReactNode;
+    children: ReactNode;
 };
 
 function HeadlessMenuRoot({
-  children,
+    children,
 }: HeadlessMenuProps) {
-  const [open, setOpen] = useState(false);
-  const [openedDropdownId, setOpenedDropdownId] = useState<string | null>(null);
+    const [open, setOpen] = useState(false);
+    const [openedDropdownId, setOpenedDropdownId] = useState<string | null>(null);
 
-  const toggle = () => {
-    setOpen(!open);
-  };
+    const toggle = () => {
+        setOpen(!open);
+    };
 
-  const close = () => {
-    setOpen(false);
-  };
+    const close = () => {
+        setOpen(false);
+    };
 
- const toggleDropdown = (id: string) => {
-  setOpenedDropdownId(
-    openedDropdownId === id ? null : id,
-  );
-};
+    const toggleDropdown = (id: string) => {
+        setOpenedDropdownId(
+            openedDropdownId === id ? null : id,
+        );
+    };
 
-  return (
-    <HeadlessMenuContext.Provider
-      value={{
-        open,
-        setOpen,
-        toggle,
-        close,
-        openedDropdownId,
-        setOpenedDropdownId,
-        toggleDropdown
-      }}
-    >
-      {children}
-    </HeadlessMenuContext.Provider>
-  );
+    return (
+        <HeadlessMenuContext.Provider
+            value={{
+                open,
+                setOpen,
+                toggle,
+                close,
+                openedDropdownId,
+                setOpenedDropdownId,
+                toggleDropdown
+            }}
+        >
+            {children}
+        </HeadlessMenuContext.Provider>
+    );
 }
 
 
 //PANEL
 type PanelProps = {
-  children: (state: {
-    open: boolean;
-    close: () => void;
-  }) => ReactNode;
+    children: (state: {
+        open: boolean;
+        close: () => void;
+    }) => ReactNode;
 };
 
 function Panel({ children }: PanelProps) {
-  const { open, close } = useHeadlessMenuContext();
+    const { open, close } = useHeadlessMenuContext();
 
-  return <>{children({ open, close })}</>;
+    return <>{children({ open, close })}</>;
 }
 
 
 //TOGGLE
 type ToggleProps = {
-  children: (state: {
-    open: boolean;
-    toggle: () => void;
-    setOpen: (open: boolean) => void;
-  }) => ReactNode;
+    children: (state: {
+        open: boolean;
+        toggle: () => void;
+        setOpen: (open: boolean) => void;
+    }) => ReactNode;
 };
 
 function Toggle({ children }: ToggleProps) {
-  const { open, toggle, setOpen } = useHeadlessMenuContext();
+    const { open, toggle, setOpen } = useHeadlessMenuContext();
 
-  return <>{children({ open, toggle, setOpen })}</>;
+    return <>{children({ open, toggle, setOpen })}</>;
 }
 
 
 //ITEM
 type ItemProps = {
-  id?: string;
-  active?: boolean;
-  disabled?: boolean;
+    id?: string;
+    active?: boolean;
+    disabled?: boolean;
 
- children: (state: {
-  id: string;
-  active: boolean;
-  disabled: boolean;
-  open: boolean;
-  close: () => void;
-}) => ReactNode;
+    children: (state: {
+        id: string;
+        active: boolean;
+        disabled: boolean;
+        open: boolean;
+        close: () => void;
+    }) => ReactNode;
 };
 
 function Item({
-  id,
-  active = false,
-  disabled = false,
-  children,
+    id,
+    active = false,
+    disabled = false,
+    children,
 }: ItemProps) {
-  const generatedId = useId();
-  const { open, close } = useHeadlessMenuContext();
+    const generatedId = useId();
+    const { open, close } = useHeadlessMenuContext();
 
-  return children({
+    return children({
         id: id ?? generatedId,
         active,
         disabled,
         open,
         close,
-      }) 
+    })
 }
 
 //DROPDOWN
 type DropdownContextValue = {
-  id: string;
+    id: string;
 };
 
 const DropdownContext = createContext<DropdownContextValue | null>(null);
 
 function useDropdownContext() {
-  const context = useContext(DropdownContext);
+    const context = useContext(DropdownContext);
 
-  if (!context) {
-    throw new Error(
-      "HeadlessMenu.DropdownTrigger and HeadlessMenu.DropdownContent must be used inside HeadlessMenu.Dropdown",
-    );
-  }
+    if (!context) {
+        throw new Error(
+            "HeadlessMenu.DropdownTrigger and HeadlessMenu.DropdownContent must be used inside HeadlessMenu.Dropdown",
+        );
+    }
 
-  return context;
+    return context;
 }
 
 type DropdownProps = {
-  id: string;
-  children: ReactNode;
+    id: string;
+    children: ReactNode;
 };
 
 function Dropdown({ id, children }: DropdownProps) {
-  return (
-    <DropdownContext.Provider value={{ id }}>
-      {children}
-    </DropdownContext.Provider>
-  );
+    return (
+        <DropdownContext.Provider value={{ id }}>
+            {children}
+        </DropdownContext.Provider>
+    );
 }
 
 //DROPDOWN TRIGGER
 type DropdownTriggerProps = {
-  children: (state: {
-    open: boolean;
-    menuOpen: boolean;
-    toggle: () => void;
-  }) => ReactNode;
+    children: (state: {
+        open: boolean;
+        menuOpen: boolean;
+        toggle: () => void;
+    }) => ReactNode;
 };
 
 function DropdownTrigger({
-  children,
+    children,
 }: DropdownTriggerProps) {
-  const { id } = useDropdownContext();
+    const { id } = useDropdownContext();
+
+    const {
+        open: menuOpen,
+        openedDropdownId,
+        toggleDropdown,
+    } = useHeadlessMenuContext();
+
+    const dropdownOpen = openedDropdownId === id;
+
+    return (
+        <>
+            {children({
+                open: dropdownOpen,
+                menuOpen,
+                toggle: () => toggleDropdown(id),
+            })}
+        </>
+    );
+}
+
+type DropdownContentProps = {
+    children: (state: {
+        open: boolean;
+        menuOpen: boolean;
+        close: () => void;
+    }) => ReactNode;
+}
+
+function DropdownContent({ children }: DropdownContentProps) {
+const { id } = useDropdownContext();
 
   const {
     open: menuOpen,
     openedDropdownId,
-    toggleDropdown,
+    setOpenedDropdownId,
   } = useHeadlessMenuContext();
 
   const dropdownOpen = openedDropdownId === id;
 
-  return (
-    <>
-      {children({
+  return children({
         open: dropdownOpen,
         menuOpen,
-        toggle: () => toggleDropdown(id),
-      })}
-    </>
-  );
+        close: () => setOpenedDropdownId(null),
+      })
 }
 
 
 export const HeadlessMenu = Object.assign(HeadlessMenuRoot, {
-  Panel,
-  Toggle,
-  Item,
-  Dropdown,
-  DropdownTrigger,
+    Panel,
+    Toggle,
+    Item,
+    Dropdown,
+    DropdownTrigger,
+    DropdownContent,
 });

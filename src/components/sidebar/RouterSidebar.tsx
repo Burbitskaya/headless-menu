@@ -65,18 +65,24 @@ export function RouterSidebar() {
     </NavLink>
   )}
 </HeadlessMenu.Item>
-<HeadlessMenu.Dropdown id="products">
+<HeadlessMenu.Dropdown id="settings">
   <HeadlessMenu.DropdownTrigger>
-    {({ open, menuOpen, toggle }) => (
-      <button
-        onClick={toggle}
-        className="rounded-md px-3 py-2 hover:bg-gray-100"
-      >
-        {menuOpen ? "Products" : "P"}
-        {open ? " ↑" : " ↓"}
+    {({ open, toggle }) => (
+      <button onClick={toggle}>
+        Settings {open ? "↑" : "↓"}
       </button>
     )}
   </HeadlessMenu.DropdownTrigger>
+
+  <HeadlessMenu.DropdownContent>
+    {({ open }) =>
+      open ? (
+        <div>
+          Settings content
+        </div>
+      ) : null
+    }
+  </HeadlessMenu.DropdownContent>
 </HeadlessMenu.Dropdown>
 </nav>
           </aside>
