@@ -165,7 +165,7 @@ type ItemProps = {
         active: boolean;
         disabled: boolean;
         open: boolean;
-        close: () => void;
+        closeDropdown: () => void;
     }) => ReactNode;
 };
 
@@ -176,14 +176,14 @@ function Item({
     children,
 }: ItemProps) {
     const generatedId = useId();
-    const { open, close } = useHeadlessMenuContext();
+    const { open, closeDropdown } = useHeadlessMenuContext();
 
     return children({
         id: id ?? generatedId,
         active,
         disabled,
         open,
-        close,
+        closeDropdown,
     })
 }
 

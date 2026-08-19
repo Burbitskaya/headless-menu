@@ -68,13 +68,14 @@ export function RouterSidebar() {
                   id="home"
                   active={pathname === "/"}
                 >
-                  {({ active, open }) => (
+                  {({ active, open, closeDropdown}) => (
                     <NavItem
                       to="/"
                       label="Домой"
                       icon={<Home size={20} />}
                       open={open}
                       active={active}
+                      closeDropdown={closeDropdown}
                     />
                   )}
                 </HeadlessMenu.Item>
@@ -84,13 +85,14 @@ export function RouterSidebar() {
                   id="users"
                   active={pathname === "/users"}
                 >
-                  {({ active, open }) => (
+                  {({ active, open,closeDropdown }) => (
                     <NavItem
                       to="/users"
                       label="Пользователи"
                       icon={<Users size={20} />}
                       open={open}
                       active={active}
+                      closeDropdown={closeDropdown}
                     />
                   )}
                 </HeadlessMenu.Item>
@@ -218,13 +220,14 @@ export function RouterSidebar() {
                   id="settings"
                   active={pathname === "/settings"}
                 >
-                  {({ active, open }) => (
+                  {({ active, open,closeDropdown }) => (
                     <NavItem
                       to="/settings"
                       label="Настройки"
                       icon={<Settings size={20} />}
                       open={open}
                       active={active}
+                      closeDropdown={closeDropdown}
                     />
                   )}
                 </HeadlessMenu.Item>
@@ -285,6 +288,7 @@ type NavItemProps = {
   icon: ReactNode;
   open: boolean;
   active: boolean;
+  closeDropdown: ()=>void;
 };
 
 function NavItem({
@@ -293,10 +297,12 @@ function NavItem({
   icon,
   open,
   active,
+  closeDropdown
 }: NavItemProps) {
   return (
     <NavLink
       to={to}
+      onClick={closeDropdown}
       className={`
         flex h-10 items-center
         rounded-md
