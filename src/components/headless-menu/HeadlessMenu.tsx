@@ -166,10 +166,44 @@ function Dropdown({ id, children }: DropdownProps) {
   );
 }
 
+//DROPDOWN TRIGGER
+type DropdownTriggerProps = {
+  children: (state: {
+    open: boolean;
+    menuOpen: boolean;
+    toggle: () => void;
+  }) => ReactNode;
+};
+
+function DropdownTrigger({
+  children,
+}: DropdownTriggerProps) {
+  const { id } = useDropdownContext();
+
+  const {
+    open: menuOpen,
+    openedDropdownId,
+    toggleDropdown,
+  } = useHeadlessMenuContext();
+
+  const dropdownOpen = openedDropdownId === id;
+
+  return (
+    <>
+      {children({
+        open: dropdownOpen,
+        menuOpen,
+        toggle: () => toggleDropdown(id),
+      })}
+    </>
+  );
+}
+
 
 export const HeadlessMenu = Object.assign(HeadlessMenuRoot, {
   Panel,
   Toggle,
   Item,
   Dropdown,
+  DropdownTrigger,
 });
