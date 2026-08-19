@@ -9,9 +9,9 @@ import { SalesPage } from "./pages/SalesPage";
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
+     <div className="flex min-h-screen bg-gray-50">
       <RouterSidebar />
-      <main className="p-6 md:pl-72">
+        <main className="min-w-0 flex-1 p-6 pb-20 md:pb-6">
         <Routes>
      
           <Route path="/" element={<HomePage />} />

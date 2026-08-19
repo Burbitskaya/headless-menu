@@ -15,9 +15,6 @@ import { HeadlessMenu } from "../headless-menu/HeadlessMenu";
 
 
 
-
-
-
 export function RouterSidebar() {
 
   const location = useLocation();
@@ -29,15 +26,18 @@ export function RouterSidebar() {
         {({ open }) => (
           <aside
             className={`
-              fixed left-0 top-0 z-40
+              hidden
               h-screen
-              bg-white shadow-lg
+              shrink-0
+              flex-col
+              bg-white
+              shadow-lg
+              transition-[width]
+              duration-200
+              md:flex
               ${open ? "w-64" : "w-16"}
             `}
           >
-
-
-
 
             <div className="relative flex h-full flex-col">
 
@@ -68,7 +68,7 @@ export function RouterSidebar() {
                   id="home"
                   active={pathname === "/"}
                 >
-                  {({ active, open, closeDropdown}) => (
+                  {({ active, open, closeDropdown }) => (
                     <NavItem
                       to="/"
                       label="Домой"
@@ -85,7 +85,7 @@ export function RouterSidebar() {
                   id="users"
                   active={pathname === "/users"}
                 >
-                  {({ active, open,closeDropdown }) => (
+                  {({ active, open, closeDropdown }) => (
                     <NavItem
                       to="/users"
                       label="Пользователи"
@@ -99,7 +99,7 @@ export function RouterSidebar() {
 
 
                 <div className="relative">
-                  <HeadlessMenu.Dropdown id="reports"  active={pathname.startsWith("/reports")}>
+                  <HeadlessMenu.Dropdown id="reports" active={pathname.startsWith("/reports")}>
 
                     <HeadlessMenu.DropdownTrigger>
                       {({
@@ -109,26 +109,26 @@ export function RouterSidebar() {
                         openDropdown,
                         closeDropdown
                       }) => (
-                       <div
+                        <div
                           onMouseEnter={() => {
                             if (!menuOpen) {
                               openDropdown();
                             }
                           }}
-                           onMouseLeave={() => {
+                          onMouseLeave={() => {
                             if (!menuOpen) {
                               closeDropdown();
                             }
-                      
+
                           }}
                         >
-<button
+                          <button
                             type="button"
                             onClick={() => {
                               if (menuOpen) {
                                 toggle();
                               }
- }}
+                            }}
                             className={`
                             flex h-10 w-full
                             items-center
@@ -220,7 +220,7 @@ export function RouterSidebar() {
                   id="settings"
                   active={pathname === "/settings"}
                 >
-                  {({ active, open,closeDropdown }) => (
+                  {({ active, open, closeDropdown }) => (
                     <NavItem
                       to="/settings"
                       label="Настройки"
@@ -288,7 +288,7 @@ type NavItemProps = {
   icon: ReactNode;
   open: boolean;
   active: boolean;
-  closeDropdown: ()=>void;
+  closeDropdown: () => void;
 };
 
 function NavItem({
