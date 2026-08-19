@@ -7,6 +7,9 @@ type HeadlessMenuContextValue = {
   setOpen: (open: boolean) => void;
   toggle: () => void;
   close: () => void;
+  openedDropdownId: string | null;
+  setOpenedDropdownId: (id: string | null) => void;
+  toggleDropdown: (id: string) => void;
 };
 
 const HeadlessMenuContext = createContext<HeadlessMenuContextValue | null>(null);
@@ -33,6 +36,7 @@ function HeadlessMenuRoot({
   children,
 }: HeadlessMenuProps) {
   const [open, setOpen] = useState(false);
+  const [openedDropdownId, setOpenedDropdownId] = useState<string | null>(null);
 
   const toggle = () => {
     setOpen(!open);
@@ -42,6 +46,12 @@ function HeadlessMenuRoot({
     setOpen(false);
   };
 
+ const toggleDropdown = (id: string) => {
+  setOpenedDropdownId(
+    openedDropdownId === id ? null : id,
+  );
+};
+
   return (
     <HeadlessMenuContext.Provider
       value={{
@@ -49,6 +59,9 @@ function HeadlessMenuRoot({
         setOpen,
         toggle,
         close,
+        openedDropdownId,
+        setOpenedDropdownId,
+        toggleDropdown
       }}
     >
       {children}
@@ -121,9 +134,42 @@ function Item({
       }) 
 }
 
+//DROPDOWN
+type DropdownContextValue = {
+  id: string;
+};
+
+const DropdownContext = createContext<DropdownContextValue | null>(null);
+
+function useDropdownContext() {
+  const context = useContext(DropdownContext);
+
+  if (!context) {
+    throw new Error(
+      "HeadlessMenu.DropdownTrigger and HeadlessMenu.DropdownContent must be used inside HeadlessMenu.Dropdown",
+    );
+  }
+
+  return context;
+}
+
+type DropdownProps = {
+  id: string;
+  children: ReactNode;
+};
+
+function Dropdown({ id, children }: DropdownProps) {
+  return (
+    <DropdownContext.Provider value={{ id }}>
+      {children}
+    </DropdownContext.Provider>
+  );
+}
+
 
 export const HeadlessMenu = Object.assign(HeadlessMenuRoot, {
   Panel,
   Toggle,
   Item,
+  Dropdown,
 });

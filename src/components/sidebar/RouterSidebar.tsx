@@ -46,19 +46,25 @@ export function RouterSidebar() {
   >
     {open ? "Users" : "U"}
   </NavLink>
-
-  <NavLink
-    to="/settings"
-    className={({ isActive }) =>
-      `rounded-md px-3 py-2 ${
-        isActive
-          ? "bg-gray-200 font-semibold"
+<HeadlessMenu.Item disabled>
+  {({ disabled, open }) => (
+    <NavLink
+      to="/settings"
+      onClick={(event) => {
+        if (disabled) {
+          event.preventDefault();
+        }
+      }}
+      className={`rounded-md px-3 py-2 ${
+        disabled
+          ? "cursor-not-allowed text-gray-400"
           : "hover:bg-gray-100"
-      }`
-    }
-  >
-    {open ? "Settings" : "S"}
-  </NavLink>
+      }`}
+    >
+      {open ? "Settings" : "S"}
+    </NavLink>
+  )}
+</HeadlessMenu.Item>
 </nav>
           </aside>
         )}
