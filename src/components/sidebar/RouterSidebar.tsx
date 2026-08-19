@@ -1,20 +1,28 @@
-import { HeadlessMenu } from "../headless-menu/HeadlessMenu";
-import { NavLink } from "react-router-dom";
+import type { ReactNode } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import {
-  Home,
-  Users,
   BarChart3,
-  Settings,
-  Menu,
   ChevronLeft,
   ChevronRight,
+  Home,
+  Menu,
+  Settings,
+  Users,
   Building2,
 } from "lucide-react";
 
-import type { ReactNode } from "react";
+import { HeadlessMenu } from "../headless-menu/HeadlessMenu";
+
+
+
+
 
 
 export function RouterSidebar() {
+
+  const location = useLocation();
+  const pathname = location.pathname;
+
   return (
     <HeadlessMenu>
       <HeadlessMenu.Panel>
@@ -24,20 +32,22 @@ export function RouterSidebar() {
               fixed left-0 top-0 z-40
               h-screen
               bg-white shadow-lg
-             
               ${open ? "w-64" : "w-16"}
             `}
           >
-            <div className="relative flex h-full flex-col">
 
+
+
+
+            <div className="relative flex h-full flex-col">
 
               <div
                 className="
-    flex h-16
-    items-center
-    border-b border-gray-200
-    px-3
-  "
+                  flex h-16
+                  items-center
+                  border-b border-gray-200
+                  px-3
+                "
               >
                 <span className="flex w-10 shrink-0 justify-center">
                   <Building2 size={24} />
@@ -52,50 +62,81 @@ export function RouterSidebar() {
 
 
 
+             
               <nav className="flex flex-col gap-2 p-2 pt-8">
-                <HeadlessMenu.Item>
-                  {({ close }) => (
+                <HeadlessMenu.Item
+                  id="home"
+                  active={pathname === "/"}
+                >
+                  {({ active, open, close }) => (
                     <NavItem
                       to="/"
-                      label="Home"
+                      label="Домой"
                       icon={<Home size={20} />}
                       open={open}
+                      active={active}
                       close={close}
                     />
                   )}
                 </HeadlessMenu.Item>
 
-                <HeadlessMenu.Item>
-                  {({ close }) => (
+               
+                <HeadlessMenu.Item
+                  id="users"
+                  active={pathname === "/users"}
+                >
+                  {({ active, open, close }) => (
                     <NavItem
                       to="/users"
-                      label="Users"
+                      label="Пользователи"
                       icon={<Users size={20} />}
                       open={open}
+                      active={active}
                       close={close}
                     />
                   )}
                 </HeadlessMenu.Item>
 
+              
+<div className="relative">
                 <HeadlessMenu.Dropdown id="reports">
+
                   <HeadlessMenu.DropdownTrigger>
-                    {({ open: dropdownOpen, toggle }) => (
+                    {({
+                      open: dropdownOpen,
+                      menuOpen,
+                      toggle,
+                    }) => (
                       <button
                         type="button"
-                        onClick={toggle}
-                        className="
-    flex h-10 w-full
-    items-center
-    rounded-md
-    px-1
-    hover:bg-gray-100
-  "
+                        onClick={() => {
+        if (menuOpen) {
+          toggle();
+        }
+      }}
+      onMouseEnter={() => {
+        if (!menuOpen && !dropdownOpen) {
+          toggle();
+        }
+      }}
+                        className={`
+                          flex h-10 w-full
+                          items-center
+                          rounded-md
+                          px-1
+                          hover:bg-gray-100
+                          ${
+                            pathname.startsWith("/reports")
+                              ? "bg-gray-200 font-semibold"
+                              : ""
+                          }
+                        `}
                       >
                         <span className="flex w-10 shrink-0 justify-center">
                           <BarChart3 size={20} />
                         </span>
 
-                        {open && (
+                        {menuOpen && (
                           <>
                             <span className="ml-2 flex-1 text-left">
                               Отчёты
@@ -113,49 +154,79 @@ export function RouterSidebar() {
                   </HeadlessMenu.DropdownTrigger>
 
                   <HeadlessMenu.DropdownContent>
-                    {({ open: dropdownOpen, close }) =>
+                    {({
+                      open: dropdownOpen,
+                      menuOpen,
+                      close,
+                    }) =>
                       dropdownOpen ? (
                         <div
                           className={
-                            open
+                            menuOpen
                               ? "ml-4 flex flex-col gap-1"
                               : "absolute left-full top-0 ml-2 w-52 rounded-md bg-white p-1 shadow-lg"
                           }
                         >
                           <SubNavItem
                             to="/reports"
-                            label="Overview"
+                            label="Все отчеты"
                             icon={<BarChart3 size={18} />}
+                            active={pathname === "/reports"}
+                            menuOpen={menuOpen}
                             close={close}
                           />
 
                           <SubNavItem
                             to="/reports/sales"
-                            label="Sales"
+                            label="Продажи"
                             icon={<BarChart3 size={18} />}
+                            active={
+                              pathname === "/reports/sales"
+                            }
+                            menuOpen={menuOpen}
+                            close={close}
+                          />
+
+                          <SubNavItem
+                            to="/reports/finance"
+                            label="Финансы"
+                            icon={<BarChart3 size={18} />}
+                            active={
+                              pathname === "/reports/finance"
+                            }
+                            menuOpen={menuOpen}
                             close={close}
                           />
                         </div>
                       ) : null
                     }
                   </HeadlessMenu.DropdownContent>
-                </HeadlessMenu.Dropdown>
 
-                <HeadlessMenu.Item>
-                  {({ close }) => (
+                </HeadlessMenu.Dropdown>
+</div>
+               
+                <HeadlessMenu.Item
+                  id="settings"
+                  active={pathname === "/settings"}
+                >
+                  {({ active, open, close }) => (
                     <NavItem
                       to="/settings"
-                      label="Settings"
+                      label="Настройки"
                       icon={<Settings size={20} />}
                       open={open}
+                      active={active}
                       close={close}
                     />
                   )}
                 </HeadlessMenu.Item>
+
               </nav>
 
+      
 
 
+      
               <div className="mt-auto">
                 <HeadlessMenu.Toggle>
                   {({ open, toggle }) => (
@@ -163,12 +234,12 @@ export function RouterSidebar() {
                       type="button"
                       onClick={toggle}
                       className="
-          flex h-10 w-full
-          items-center
-          rounded-md
-          px-3
-          hover:bg-gray-100
-        "
+                        flex h-10 w-full
+                        items-center
+                        rounded-md
+                        px-3
+                        hover:bg-gray-100
+                      "
                     >
                       <span className="flex w-10 shrink-0 justify-center">
                         {open ? (
@@ -187,6 +258,7 @@ export function RouterSidebar() {
                   )}
                 </HeadlessMenu.Toggle>
               </div>
+
             </div>
           </aside>
         )}
@@ -195,11 +267,16 @@ export function RouterSidebar() {
   );
 }
 
+
+
+
+
 type NavItemProps = {
   to: string;
   label: string;
   icon: ReactNode;
   open: boolean;
+  active: boolean;
   close: () => void;
 };
 
@@ -208,24 +285,20 @@ function NavItem({
   label,
   icon,
   open,
+  active,
   close,
 }: NavItemProps) {
   return (
     <NavLink
       to={to}
       onClick={close}
-      className={({ isActive }) =>
-        `
-          flex h-10 items-center
-          rounded-md
-          px-1
-          hover:bg-gray-100
-          ${isActive
-          ? "bg-gray-200 font-semibold"
-          : ""
-        }
-        `
-      }
+      className={`
+        flex h-10 items-center
+        rounded-md
+        px-1
+        hover:bg-gray-100
+        ${active ? "bg-gray-200 font-semibold" : ""}
+      `}
     >
       <span className="flex w-10 shrink-0 justify-center">
         {icon}
@@ -240,10 +313,16 @@ function NavItem({
   );
 }
 
+
+
+
+
 type SubNavItemProps = {
   to: string;
   label: string;
   icon: ReactNode;
+  active: boolean;
+  menuOpen: boolean;
   close: () => void;
 };
 
@@ -251,24 +330,25 @@ function SubNavItem({
   to,
   label,
   icon,
+  active,
+  menuOpen,
   close,
 }: SubNavItemProps) {
   return (
     <NavLink
       to={to}
-      onClick={close}
-      className={({ isActive }) =>
-        `
-          flex h-10 items-center
-          rounded-md
-          px-1
-          hover:bg-gray-100
-          ${isActive
-          ? "bg-gray-200 font-semibold"
-          : ""
+      onClick={() => {
+        if (!menuOpen) {
+          close();
         }
-        `
-      }
+      }}
+      className={`
+        flex h-10 items-center
+        rounded-md
+        px-1
+        hover:bg-gray-100
+        ${active ? "bg-gray-200 font-semibold" : ""}
+      `}
     >
       <span className="flex w-10 shrink-0 justify-center">
         {icon}
