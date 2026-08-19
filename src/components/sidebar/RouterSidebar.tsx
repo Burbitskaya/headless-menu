@@ -1,4 +1,5 @@
 import { HeadlessMenu } from "../headless-menu/HeadlessMenu";
+import { NavLink } from "react-router-dom";
 
 export function RouterSidebar() {
   return (
@@ -13,6 +14,47 @@ export function RouterSidebar() {
             <p className="p-4">
               {open ? "Sidebar" : "S"}
             </p>
+
+             <nav className="mt-10 flex flex-col gap-2 p-2">
+  <NavLink
+    to="/"
+    className={({ isActive }) =>
+      `rounded-md px-3 py-2 ${
+        isActive
+          ? "bg-gray-200 font-semibold"
+          : "hover:bg-gray-100"
+      }`
+    }
+  >
+    {open ? "Home" : "H"}
+  </NavLink>
+
+  <NavLink
+    to="/users"
+    className={({ isActive }) =>
+      `rounded-md px-3 py-2 ${
+        isActive
+          ? "bg-gray-200 font-semibold"
+          : "hover:bg-gray-100"
+      }`
+    }
+  >
+    {open ? "Users" : "U"}
+  </NavLink>
+
+  <NavLink
+    to="/settings"
+    className={({ isActive }) =>
+      `rounded-md px-3 py-2 ${
+        isActive
+          ? "bg-gray-200 font-semibold"
+          : "hover:bg-gray-100"
+      }`
+    }
+  >
+    {open ? "Settings" : "S"}
+  </NavLink>
+</nav>
           </aside>
         )}
       </HeadlessMenu.Panel>
