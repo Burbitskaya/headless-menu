@@ -1,4 +1,4 @@
-import { createContext,  useContext, useState } from "react";
+import { createContext,  useContext, useId, useState } from "react";
 import type {ReactNode} from "react";
 
 // CONTEXT
@@ -88,7 +88,41 @@ function Toggle({ children }: ToggleProps) {
 }
 
 
+//ITEM
+type ItemProps = {
+  id?: string;
+  active?: boolean;
+  disabled?: boolean;
+
+  children: (state: {
+    id: string;
+    active: boolean;
+    disabled: boolean;
+  }) => ReactNode;
+};
+
+function Item({
+  id,
+  active = false,
+  disabled = false,
+  children,
+}: ItemProps) {
+  const generatedId = useId();
+
+  return (
+    <>
+      {children({
+        id: id ?? generatedId,
+        active,
+        disabled,
+      })}
+    </>
+  );
+}
+
+
 export const HeadlessMenu = Object.assign(HeadlessMenuRoot, {
   Panel,
   Toggle,
+  Item,
 });

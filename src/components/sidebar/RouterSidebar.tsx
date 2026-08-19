@@ -16,18 +16,22 @@ export function RouterSidebar() {
             </p>
 
              <nav className="mt-10 flex flex-col gap-2 p-2">
-  <NavLink
-    to="/"
-    className={({ isActive }) =>
-      `rounded-md px-3 py-2 ${
-        isActive
-          ? "bg-gray-200 font-semibold"
-          : "hover:bg-gray-100"
-      }`
-    }
-  >
-    {open ? "Home" : "H"}
-  </NavLink>
+ <HeadlessMenu.Item >
+  {() => (
+    <NavLink
+      to="/"
+      className={({ isActive }) =>
+        `rounded-md px-3 py-2 ${
+          isActive
+            ? "bg-gray-200 font-semibold"
+            : "hover:bg-gray-100"
+        }`
+      }
+    >
+      {open ? "Home" : "H"}
+    </NavLink>
+  )}
+</HeadlessMenu.Item>
 
   <NavLink
     to="/users"
