@@ -29,7 +29,7 @@ type HeadlessMenuProps = {
   children: ReactNode;
 };
 
-function HeadlessMenu({
+function HeadlessMenuRoot({
   children,
 }: HeadlessMenuProps) {
   const [open, setOpen] = useState(false);
@@ -55,3 +55,40 @@ function HeadlessMenu({
     </HeadlessMenuContext.Provider>
   );
 }
+
+
+//PANEL
+type PanelProps = {
+  children: (state: {
+    open: boolean;
+    close: () => void;
+  }) => ReactNode;
+};
+
+function Panel({ children }: PanelProps) {
+  const { open, close } = useHeadlessMenuContext();
+
+  return <>{children({ open, close })}</>;
+}
+
+
+//TOGGLE
+type ToggleProps = {
+  children: (state: {
+    open: boolean;
+    toggle: () => void;
+    setOpen: (open: boolean) => void;
+  }) => ReactNode;
+};
+
+function Toggle({ children }: ToggleProps) {
+  const { open, toggle, setOpen } = useHeadlessMenuContext();
+
+  return <>{children({ open, toggle, setOpen })}</>;
+}
+
+
+export const HeadlessMenu = Object.assign(HeadlessMenuRoot, {
+  Panel,
+  Toggle,
+});
