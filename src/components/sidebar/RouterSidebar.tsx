@@ -16,10 +16,11 @@ export function RouterSidebar() {
             </p>
 
              <nav className="mt-10 flex flex-col gap-2 p-2">
- <HeadlessMenu.Item >
-  {() => (
+ <HeadlessMenu.Item id="home">
+  {({ open, close }) => (
     <NavLink
       to="/"
+      onClick={close}
       className={({ isActive }) =>
         `rounded-md px-3 py-2 ${
           isActive

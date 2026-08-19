@@ -94,11 +94,13 @@ type ItemProps = {
   active?: boolean;
   disabled?: boolean;
 
-  children: (state: {
-    id: string;
-    active: boolean;
-    disabled: boolean;
-  }) => ReactNode;
+ children: (state: {
+  id: string;
+  active: boolean;
+  disabled: boolean;
+  open: boolean;
+  close: () => void;
+}) => ReactNode;
 };
 
 function Item({
@@ -108,16 +110,15 @@ function Item({
   children,
 }: ItemProps) {
   const generatedId = useId();
+  const { open, close } = useHeadlessMenuContext();
 
-  return (
-    <>
-      {children({
+  return children({
         id: id ?? generatedId,
         active,
         disabled,
-      })}
-    </>
-  );
+        open,
+        close,
+      }) 
 }
 
 
