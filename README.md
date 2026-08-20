@@ -293,4 +293,6 @@ function RouterSidebar() {
 
 ## 📄 Лицензия
 
-MIT © []
+Проект распространяется под лицензией [MIT](./LICENSE).
+
+MIT © 2026 Yana Burbitskaya
