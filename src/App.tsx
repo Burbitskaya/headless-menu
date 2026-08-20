@@ -1,4 +1,4 @@
-import { BrowserRouter, Route } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { RouterSidebar } from "./components/sidebar/RouterSidebar";
 import { HomePage } from "./pages/HomePage";
 import { UsersPage } from "./pages/UsersPage";
@@ -7,14 +7,12 @@ import { ReportsPage } from "./pages/ReportsPage";
 import { FinancePage } from "./pages/FinancePage";
 import { SalesPage } from "./pages/SalesPage";
 
-const basename = import.meta.env.PROD ? '/headless-menu/' : '/';
-
 export default function App() {
   return (
      <div className="flex min-h-screen bg-gray-50">
       <RouterSidebar />
         <main className="min-w-0 flex-1 p-6 pb-20 md:pb-6">
-          <BrowserRouter basename={basename}>
+        <Routes>
      
           <Route path="/" element={<HomePage />} />
 
@@ -26,7 +24,7 @@ export default function App() {
 
           <Route path="/settings" element={<SettingsPage />} />
     
-        </BrowserRouter>
+        </Routes>
       </main>
     </div>
   );
