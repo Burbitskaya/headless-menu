@@ -7,7 +7,7 @@ type NavItemProps = {
   icon: ReactNode;
   open: boolean;      // открыто ли меню 
   active: boolean;
-  onClick?: () => void; // для closeDropdown
+  onClick?: () => void; // для закрытия дропдауна
 };
 
 export function NavItem({ to, label, icon, open, active, onClick }: NavItemProps) {
