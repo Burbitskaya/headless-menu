@@ -41,61 +41,61 @@ function useHeadlessMenuContext() {
 
 // MENU
 type HeadlessMenuProps = {
-    children: ReactNode;
+  children: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
-function HeadlessMenuRoot({
-  children,
-}: HeadlessMenuProps) {
-  const [open, setOpenState] = useState(false);
 
-  const [openedDropdownId, setOpenedDropdownId] =
-    useState<string | null>(null);
 
+function HeadlessMenuRoot({ children, open: controlledOpen, onOpenChange }: HeadlessMenuProps) {
+  // 1. Все состояния
+  const [internalOpen, setInternalOpen] = useState(false);
+  const [openedDropdownId, setOpenedDropdownId] = useState<string | null>(null);
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+
+  // 2. Функции управления открытием меню
   const setOpen = useCallback((nextOpen: boolean) => {
-    setOpenState(nextOpen);
-
+    if (isControlled) {
+      onOpenChange?.(nextOpen);
+    } else {
+      setInternalOpen(nextOpen);
+    }
     if (!nextOpen) {
       setOpenedDropdownId(null);
     }
-  }, []);
+  }, [isControlled, onOpenChange]);
 
   const toggle = useCallback(() => {
-    setOpenState((currentOpen) => {
-      const nextOpen = !currentOpen;
-      if (!nextOpen) {
-        setOpenedDropdownId(null);
-      }
-
-      return nextOpen;
-    });
-  }, []);
+    setOpen(!open);
+  }, [open, setOpen]);
 
   const close = useCallback(() => {
     setOpen(false);
   }, [setOpen]);
 
+  // 3. Функции управления дропдаунами
   const toggleDropdown = useCallback((id: string) => {
     setOpenedDropdownId((currentId) => (currentId === id ? null : id));
   }, []);
-
 
   const openDropdown = useCallback((id: string) => {
     setOpenedDropdownId(id);
   }, []);
 
-
   const closeDropdown = useCallback(() => {
     setOpenedDropdownId(null);
   }, []);
 
+  // 4. Значение контекста
   const value = useMemo(
     () => ({
       open,
       setOpen,
       toggle,
       close,
-
       openedDropdownId,
       setOpenedDropdownId,
       toggleDropdown,
@@ -115,9 +115,7 @@ function HeadlessMenuRoot({
   );
 
   return (
-    <HeadlessMenuContext.Provider
-      value={value}
-    >
+    <HeadlessMenuContext.Provider value={value}>
       {children}
     </HeadlessMenuContext.Provider>
   );
@@ -315,6 +313,7 @@ function DropdownContent({ children }: DropdownContentProps) {
         close: () => setOpenedDropdownId(null),
     })
 }
+
 
 
 export const HeadlessMenu = Object.assign(HeadlessMenuRoot, {
