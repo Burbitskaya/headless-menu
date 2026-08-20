@@ -9,7 +9,11 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 
-// CONTEXT
+
+// ============================================================================
+// Контекст
+// ============================================================================
+
 type HeadlessMenuContextValue = {
     open: boolean;
     setOpen: (open: boolean) => void;
@@ -39,24 +43,25 @@ function useHeadlessMenuContext() {
 }
 
 
-// MENU
+// ============================================================================
+// Корневой компонент (провайдер)
+// ============================================================================
+
 type HeadlessMenuProps = {
   children: ReactNode;
-  open?: boolean;
+  open?: boolean; // для контролируемого режима
   onOpenChange?: (open: boolean) => void;
 };
 
-
-
 function HeadlessMenuRoot({ children, open: controlledOpen, onOpenChange }: HeadlessMenuProps) {
-  // 1. Все состояния
+ 
   const [internalOpen, setInternalOpen] = useState(false);
   const [openedDropdownId, setOpenedDropdownId] = useState<string | null>(null);
 
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
 
-  // 2. Функции управления открытием меню
+  // При закрытии меню автоматически закрываем все дропдауны
   const setOpen = useCallback((nextOpen: boolean) => {
     if (isControlled) {
       onOpenChange?.(nextOpen);
@@ -76,7 +81,7 @@ function HeadlessMenuRoot({ children, open: controlledOpen, onOpenChange }: Head
     setOpen(false);
   }, [setOpen]);
 
-  // 3. Функции управления дропдаунами
+  // Функции управления дропдаунами
   const toggleDropdown = useCallback((id: string) => {
     setOpenedDropdownId((currentId) => (currentId === id ? null : id));
   }, []);
@@ -89,7 +94,7 @@ function HeadlessMenuRoot({ children, open: controlledOpen, onOpenChange }: Head
     setOpenedDropdownId(null);
   }, []);
 
-  // 4. Значение контекста
+  // Значение контекста
   const value = useMemo(
     () => ({
       open,
@@ -121,7 +126,10 @@ function HeadlessMenuRoot({ children, open: controlledOpen, onOpenChange }: Head
   );
 }
 
-//PANEL
+// ============================================================================
+// Панель меню
+// ============================================================================
+
 type PanelProps = {
     children: (state: {
         open: boolean;
@@ -136,7 +144,10 @@ function Panel({ children }: PanelProps) {
 }
 
 
-//TOGGLE
+// ============================================================================
+// Тригер меню
+// ============================================================================
+
 type ToggleProps = {
     children: (state: {
         open: boolean;
@@ -152,7 +163,10 @@ function Toggle({ children }: ToggleProps) {
 }
 
 
-//ITEM
+// ============================================================================
+// Простой элемент меню
+// ============================================================================
+
 type ItemProps = {
     id?: string;
     active?: boolean;
@@ -185,7 +199,11 @@ function Item({
     })
 }
 
-//DROPDOWN
+
+// ============================================================================
+// Dropdown (подменю)
+// ============================================================================
+
 type DropdownContextValue = {
   id: string;
   active: boolean;
@@ -222,6 +240,7 @@ function Dropdown({
     closeDropdown,
   } = useHeadlessMenuContext();
 
+  // Автоматически открываем дропдаун, если родитель активен и меню открыто
   useEffect(() => {
     if (!menuOpen) {
       closeDropdown();
