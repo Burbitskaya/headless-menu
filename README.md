@@ -13,8 +13,8 @@
 ### Установка
 
 ```bash
-git clone <url-репозитория>
-cd <папка-проекта>
+git clone https://github.com/Burbitskaya/headless-menu.git
+cd headless-menu
 npm install
 ```
 
