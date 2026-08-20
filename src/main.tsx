@@ -4,11 +4,9 @@ import { BrowserRouter } from "react-router-dom";
 import './index.css';
 import App from './App';
 
-const basename = import.meta.env.PROD ? '/headless-menu/' : '/';
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter basename={basename}>
+    <BrowserRouter>
       <App />
     </BrowserRouter>
   </StrictMode>,
