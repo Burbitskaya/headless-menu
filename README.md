@@ -44,21 +44,28 @@ npm run preview
 
 ```text
 src/
-├── headless-menu/               # Headless-компонент (вся логика)
+├── headless-menu/
 │   └── HeadlessMenu.tsx
-├── components/
-│   └── sidebar/                 # Потребители headless-меню
-│       ├── RouterSidebar.tsx    # Контейнер с роутером и localStorage
-│       ├── DesktopSidebar.tsx   # Десктопная вёрстка
-│       ├── MobileSidebar.tsx    # Мобильная вёрстка (нижняя панель + модалка)
-│       ├── NavItem.tsx          # Пункт меню (десктоп)
-│       ├── SubNavItem.tsx       # Подпункт (десктоп)
-│       ├── MobileNavItem.tsx    # Пункт нижней панели (мобилка)
-│       ├── MobileSubNavItem.tsx # Подпункт в модалке
-│       └── menuConfig.tsx       # Конфигурация пунктов меню
+│
+├── router-menu/
+│   ├── RouterMenu.tsx
+│   ├── RouterMenuContext.tsx
+│   ├── RouterMenuItem.tsx
+│   ├── RouterMenuGroup.tsx
+│   ├── SubMenuContext.tsx
+│   ├── useMediaQuery.ts
+│   │
+│   ├── item/
+│   │   ├── DesktopRouterMenuItem.tsx
+│   │   └── MobileRouterMenuItem.tsx
+│   │
+│   └── group/
+│       ├── DesktopRouterMenuGroup.tsx
+│       └── MobileRouterMenuGroup.tsx
+│
 ├── App.tsx
 ├── main.tsx
-└── index.css                    # Tailwind v4 (импорт @import "tailwindcss")
+└── index.css
 ```
 
 ---
