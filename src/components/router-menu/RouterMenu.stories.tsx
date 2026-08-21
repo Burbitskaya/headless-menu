@@ -87,10 +87,6 @@ function MenuContent() {
   );
 }
 
-// ============================================================================
-// Активный вложенный маршрут
-// ============================================================================
-
 export const ActiveNestedRoute: Story = {
   args: {
     children: null,
@@ -109,57 +105,18 @@ export const ActiveNestedRoute: Story = {
 };
 
 
-// ============================================================================
-// Интерактивный вариант
-// ============================================================================
-export const Interactive: Story = {
+export const Responsive: Story = {
   args: {
-    variant: "mobile",
-    open: true,
     children: null,
+    open: true,
   },
 
   render: (args) => (
     <MemoryRouter initialEntries={["/"]}>
-      <RouterMenu {...args}>
-        <RouterMenu.Item
-          to="/"
-          label="Главная"
-          icon={<Home size={20} />}
-        />
-
-        <RouterMenu.Item
-          to="/users"
-          label="Пользователи"
-          icon={<Users size={20} />}
-        />
-
-        <RouterMenu.Group
-          label="Отчёты"
-          to="/reports"
-          icon={<BarChart3 size={20} />}
-        >
-          <RouterMenu.Item
-            to="/reports"
-            label="Все отчёты"
-          />
-
-          <RouterMenu.Item
-            to="/reports/sales"
-            label="Продажи"
-          />
-
-          <RouterMenu.Item
-            to="/reports/finance"
-            label="Финансы"
-          />
-        </RouterMenu.Group>
-
-        <RouterMenu.Item
-          to="/settings"
-          label="Настройки"
-          icon={<Settings size={20} />}
-        />
+      <RouterMenu
+        {...args}
+      >
+        <MenuContent />
       </RouterMenu>
     </MemoryRouter>
   ),
