@@ -67,234 +67,295 @@ src/
 ├── main.tsx
 └── index.css
 ```
-
 ---
 
 ## Архитектура
 
-- **HeadlessMenu** — независимый от UI компонент, предоставляющий контекст и набор составных частей: `Panel`, `Toggle`, `Item`, `Dropdown`, `DropdownTrigger`, `DropdownContent`.
-  Он не знает о роутере, стилях или внешнем состоянии, но поддерживает контролируемый режим через пропсы `open` / `onOpenChange`.
-- **Потребители** (папка `sidebar`) используют `HeadlessMenu` для построения двух вариантов интерфейса:
-  - **DesktopSidebar** — классическое боковое меню с возможностью сворачивания.
-  - **MobileSidebar** — нижняя панель навигации, при клике на пункт с подпунктами открывается модальное окно снизу.
-- **React Router** используется только в потребителе (`RouterSidebar`), активный пункт определяется через `useLocation` и передаётся в `HeadlessMenu.Item` через проп `active`.
-- **localStorage** синхронизирует состояние открытости меню (контролируемый режим) — при перезагрузке страницы состояние сохраняется.
-- **Tailwind CSS v4** используется для стилизации, но может быть заменён на любую другую библиотеку или чистый CSS — headless-часть останется без изменений.
+Проект разделён на два уровня:
 
----
+- **HeadlessMenu** — переиспользуемая логика меню без привязки к роутеру, UI и стилям.
+- **RouterMenu** — конкретный потребитель `HeadlessMenu`, реализующий навигацию приложения для desktop и mobile.
 
-## Использование HeadlessMenu
 
-### Базовый пример
+### HeadlessMenu
 
-```tsx
-import { HeadlessMenu } from "./headless-menu/HeadlessMenu";
+`HeadlessMenu` отвечает только за состояние и взаимодействие меню.
 
-function MySidebar() {
-  return (
-    <HeadlessMenu>
-      <HeadlessMenu.Panel>
-        {({ open }) => (
-          <aside className={open ? "w-64" : "w-16"}>
-            <HeadlessMenu.Item
-              id="home"
-              active={pathname === "/"}
-            >
-              {({ active, closeDropdown }) => (
-                <NavLink
-                  to="/"
-                  onClick={closeDropdown}
-                  className={active ? "active" : ""}
-                >
-                  Домой
-                </NavLink>
-              )}
-            </HeadlessMenu.Item>
+Он предоставляет:
 
-            <HeadlessMenu.Dropdown id="reports">
-              <HeadlessMenu.DropdownTrigger>
-                {({ open, toggle }) => (
-                  <button
-                    onClick={toggle}
-                    className={open ? "opened" : ""}
-                  >
-                    Отчёты
-                  </button>
-                )}
-              </HeadlessMenu.DropdownTrigger>
+- открытие и закрытие основного меню;
+- контролируемый и неконтролируемый режим;
+- переключение состояния меню;
+- управление открытым dropdown;
+- автоматическое закрытие dropdown при закрытии основного меню;
+- render props для передачи состояния UI-компонентам.
 
-              <HeadlessMenu.DropdownContent>
-                {({ open }) =>
-                  open && (
-                    <ul>
-                      <li>
-                        <NavLink to="/reports">
-                          Все отчёты
-                        </NavLink>
-                      </li>
-                      <li>
-                        <NavLink to="/reports/sales">
-                          Продажи
-                        </NavLink>
-                      </li>
-                    </ul>
-                  )
-                }
-              </HeadlessMenu.DropdownContent>
-            </HeadlessMenu.Dropdown>
-
-            <HeadlessMenu.Toggle>
-              {({ open: menuOpen, toggle }) => (
-                <button onClick={toggle}>
-                  {menuOpen ? "Свернуть" : "Развернуть"}
-                </button>
-              )}
-            </HeadlessMenu.Toggle>
-          </aside>
-        )}
-      </HeadlessMenu.Panel>
-    </HeadlessMenu>
-  );
-}
-```
-
-### Контролируемый режим (с синхронизацией с localStorage)
+Основные составные части:
 
 ```tsx
-const [isOpen, setIsOpen] = useState(() => {
-  const stored = localStorage.getItem("sidebarOpen");
+<HeadlessMenu>
+  <HeadlessMenu.Panel>
+    ...
+  </HeadlessMenu.Panel>
 
-  return stored ? JSON.parse(stored) : false;
-});
+  <HeadlessMenu.Toggle>
+    ...
+  </HeadlessMenu.Toggle>
 
-useEffect(() => {
-  localStorage.setItem(
-    "sidebarOpen",
-    JSON.stringify(isOpen),
-  );
-}, [isOpen]);
+  <HeadlessMenu.Item>
+    ...
+  </HeadlessMenu.Item>
 
-<HeadlessMenu
-  open={isOpen}
-  onOpenChange={setIsOpen}
->
-  {/* ... */}
+  <HeadlessMenu.Dropdown>
+    <HeadlessMenu.DropdownTrigger>
+      ...
+    </HeadlessMenu.DropdownTrigger>
+
+    <HeadlessMenu.DropdownContent>
+      ...
+    </HeadlessMenu.DropdownContent>
+  </HeadlessMenu.Dropdown>
 </HeadlessMenu>
 ```
 
-### Интеграция с React Router
+### RouterMenu
+
+`RouterMenu` является потребителем `HeadlessMenu` и добавляет прикладную логику навигации.
+
+Он отвечает за:
+
+- определение текущего маршрута;
+- определение активного пункта;
+- desktop/mobile представление;
+- переходы через React Router;
+- закрытие меню после выбора пункта;
+- работу групп с вложенными пунктами;
+- сохранение состояния открытости desktop sidebar.
+
+Для связи компонентов используется `RouterMenuContext`.
+
+Для вложенных пунктов используется отдельный `SubMenuContext`, который позволяет определить, находится ли `RouterMenuItem` внутри `RouterMenuGroup`.
+
+### Desktop
+
+На desktop используется боковая панель:
+
+- открытое состояние — `w-64`;
+- закрытое состояние — `w-16`;
+- при закрытом sidebar группа может открывать dropdown при наведении;
+- при открытом sidebar группа раскрывается кликом;
+- активная группа определяется по текущему маршруту.
+
+Пример:
 
 ```tsx
-import { useLocation, NavLink } from "react-router-dom";
+<RouterMenu.Group
+  label="Отчёты"
+  to="/reports"
+  icon={<BarChart3 size={20} />}
+>
+  <RouterMenu.Item
+    to="/reports"
+    label="Все отчёты"
+  />
 
-function RouterSidebar() {
-  const { pathname } = useLocation();
+  <RouterMenu.Item
+    to="/reports/sales"
+    label="Продажи"
+  />
 
-  return (
-    <HeadlessMenu>
-      <HeadlessMenu.Panel>
-        {({ open }) => (
-          <aside>
-            <HeadlessMenu.Item
-              id="home"
-              active={pathname === "/"}
-            >
-              {({ active, closeDropdown }) => (
-                <NavLink
-                  to="/"
-                  onClick={closeDropdown}
-                  className={active ? "active" : ""}
-                >
-                  Домой
-                </NavLink>
-              )}
-            </HeadlessMenu.Item>
-
-            {/* остальные пункты */}
-          </aside>
-        )}
-      </HeadlessMenu.Panel>
-    </HeadlessMenu>
-  );
-}
+  <RouterMenu.Item
+    to="/reports/finance"
+    label="Финансы"
+  />
+</RouterMenu.Group>
 ```
+
+### Mobile
+
+На mobile используется нижняя навигационная панель.
+
+Для группы:
+
+1. пользователь нажимает на иконку;
+2. открывается нижняя панель с подпунктами;
+3. после выбора подпункта панель закрывается;
+4. активность определяется по текущему маршруту.
+
+При этом родительская группа остаётся активной для всех своих дочерних маршрутов.
 
 ---
 
-## API
+## Структура состояния
 
-### `<HeadlessMenu>` (корневой)
+Состояние разделено между несколькими уровнями.
 
-| Проп | Тип | По умолчанию | Описание |
-|---|---|---|---|
-| `children` | `ReactNode` | — | Дочерние элементы (обычно `Panel`). |
-| `open` | `boolean` | `undefined` | Если передан — компонент становится **контролируемым**. |
-| `onOpenChange` | `(open: boolean) => void` | `undefined` | Колбэк при изменении `open` (используется с `open`). |
+### HeadlessMenu
 
-> Если `open` не указан, состояние управляется внутри `HeadlessMenu` (неконтролируемый режим).
+Хранит:
 
-### `<HeadlessMenu.Panel>`
+```ts
+open: boolean;
+openedDropdownId: string | null;
+```
 
-| Проп | Тип | Описание |
-|---|---|---|
-| `children` | `({ open: boolean, close: () => void }) => ReactNode` | Функция, получающая состояние открытости и метод закрытия. |
+`open` отвечает за основное состояние меню.
 
-### `<HeadlessMenu.Toggle>`
+`openedDropdownId` определяет, какой dropdown сейчас открыт.
 
-| Проп | Тип | Описание |
-|---|---|---|
-| `children` | `({ open, toggle, setOpen }) => ReactNode` | Функция для кнопки переключения. |
+Одновременно может быть открыт только один dropdown.
 
-### `<HeadlessMenu.Item>`
+### RouterMenuContext
 
-| Проп | Тип | По умолчанию | Описание |
-|---|---|---|---|
-| `id` | `string` (опционально) | — | Уникальный идентификатор (генерируется автоматически через `useId`). |
-| `active` | `boolean` | `false` | Активен ли пункт. |
-| `disabled` | `boolean` | `false` | Заблокирован ли пункт. |
-| `children` | render prop | — | Получает `id`, `active`, `disabled`, `open` и методы закрытия dropdown, если они предоставлены API. |
+Передаёт потребителям:
 
-### `<HeadlessMenu.Dropdown>`
+```ts
+{
+  pathname,
+  closeMenu,
+  variant,
+}
+```
 
-| Проп | Тип | По умолчанию | Описание |
-|---|---|---|---|
-| `id` | `string` | — | Уникальный идентификатор dropdown. |
-| `active` | `boolean` | `false` | Если `true`, dropdown автоматически открывается при открытии меню. |
-| `children` | `ReactNode` | — | Вложенные `DropdownTrigger` и `DropdownContent`. |
+где:
 
-### `<HeadlessMenu.DropdownTrigger>`
+- `pathname` — текущий URL;
+- `closeMenu` — закрытие основного меню;
+- `variant` — `"desktop"` или `"mobile"`.
 
-| Проп | Тип | Описание |
-|---|---|---|
-| `children` | render prop | Получает `open`, `menuOpen`, `toggle`, `openDropdown`, `closeDropdown`. |
+### SubMenuContext
 
-### `<HeadlessMenu.DropdownContent>`
+Используется внутри группы и передаёт:
 
-| Проп | Тип | Описание |
-|---|---|---|
-| `children` | render prop | Получает `open`, `menuOpen` и `close`; содержимое отображается в зависимости от состояния dropdown. |
+```ts
+{
+  menuOpen,
+  close,
+}
+```
+
+Это позволяет дочернему `RouterMenuItem` корректно закрыть группу после выбора пункта.
+
+
+## Использование RouterMenu
+
+Пример использования:
+
+```tsx
+<RouterMenu>
+  <RouterMenu.Item
+    to="/"
+    label="Главная"
+    icon={<Home size={20} />}
+  />
+
+  <RouterMenu.Item
+    to="/users"
+    label="Пользователи"
+    icon={<Users size={20} />}
+  />
+
+  <RouterMenu.Group
+    label="Отчёты"
+    to="/reports"
+    icon={<BarChart3 size={20} />}
+  >
+    <RouterMenu.Item
+      to="/reports"
+      label="Все отчёты"
+    />
+
+    <RouterMenu.Item
+      to="/reports/sales"
+      label="Продажи"
+    />
+
+    <RouterMenu.Item
+      to="/reports/finance"
+      label="Финансы"
+    />
+  </RouterMenu.Group>
+
+  <RouterMenu.Item
+    to="/settings"
+    label="Настройки"
+    icon={<Settings size={20} />}
+  />
+</RouterMenu>
+```
 
 ---
 
 ## Адаптивность
 
-В проекте реализована адаптивная логика:
+Определение desktop/mobile выполняется через `useMediaQuery`:
 
-- На экранах шире 768px отображается **DesktopSidebar** — боковая панель с возможностью сворачивания.
-- На экранах меньше 768px отображается **MobileSidebar** — нижняя панель с всплывающей панелью для подменю.
+```ts
+const isMobile = useMediaQuery(
+  "(max-width: 767px)",
+);
+```
 
-Переключение происходит через CSS-классы (`md:flex` и `md:hidden`), но может быть легко заменено на JS-медиа-запросы при необходимости.
+Если `variant` не передан явно:
+
+```ts
+const variant =
+  propVariant ??
+  (isMobile ? "mobile" : "desktop");
+```
+
+Также поддерживается принудительное указание варианта:
+
+```tsx
+<RouterMenu variant="desktop">
+  ...
+</RouterMenu>
+```
+
+или:
+
+```tsx
+<RouterMenu variant="mobile">
+  ...
+</RouterMenu>
+```
 
 ---
 
 ## Доступность
 
-- Используется `useId()` для генерации уникальных идентификаторов.
-- Интерактивные элементы строятся на стандартных `button` и `NavLink`.
-- `aria-*` атрибуты добавляются в компонентах-потребителях там, где они необходимы.
-- Стандартные интерактивные элементы позволяют использовать навигацию с клавиатуры.
-- Для полноценной keyboard-навигации по пунктам меню можно дополнительно реализовать обработку стрелок `ArrowUp` / `ArrowDown`, `Enter`, `Escape` и соответствующие focus management.
+В качестве интерактивных элементов используются стандартные HTML-элементы:
 
+- `button`;
+- `NavLink`.
+
+Для уникальных ID dropdown используется React `useId()`.
+
+Кнопка закрытия мобильного подменю имеет `aria-label`:
+
+```tsx
+aria-label="Закрыть"
+```
+
+Headless-слой не навязывает конкретную реализацию accessibility, поэтому дополнительные ARIA-атрибуты и управление focus могут добавляться на уровне конкретного потребителя.
+
+---
+
+## Tailwind CSS
+
+Tailwind CSS используется только на уровне UI-компонентов sidebar.
+
+`HeadlessMenu` не содержит классов и не зависит от Tailwind.
+
+Поэтому headless-логику можно использовать с:
+
+- Tailwind CSS;
+- CSS Modules;
+- обычным CSS;
+- CSS-in-JS;
+- другой UI-библиотекой.
+
+Замена стилизации не требует изменения `HeadlessMenu`.
 
 ---
 
