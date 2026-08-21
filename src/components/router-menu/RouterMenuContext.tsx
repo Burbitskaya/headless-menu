@@ -15,7 +15,9 @@ type RouterMenuContextValue = {
 };
 
 const RouterMenuContext =
-  createContext<RouterMenuContextValue | null>(null);
+  createContext<RouterMenuContextValue | null>(
+    null,
+  );
 
 export function RouterMenuProvider({
   value,

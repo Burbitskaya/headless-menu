@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
+
 import { HeadlessMenu } from "../headless-menu/HeadlessMenu";
 
 import {
@@ -7,17 +8,22 @@ import {
   useIsActive,
 } from "./RouterMenuContext";
 
-import {
-  useSubMenu,
-} from "./SubMenuContext";
+import { useSubMenu } from "./SubMenuContext";
+
+export type RouterMenuItemProps = {
+  to: string;
+  label: string;
+  icon?: ReactNode;
+  exact?: boolean;
+};
 
 type NavItemProps = {
   to: string;
   label: string;
   icon?: ReactNode;
-  open?: boolean;
-  active?: boolean;
-  onClick?: () => void;
+  open: boolean;
+  active: boolean;
+  onClick: () => void;
 };
 
 function NavItem({
@@ -55,9 +61,9 @@ type SubNavItemProps = {
   to: string;
   label: string;
   icon?: ReactNode;
-  active?: boolean;
+  active: boolean;
   menuOpen: boolean;
-  close: () => void;
+  onClick: () => void;
 };
 
 function SubNavItem({
@@ -66,16 +72,12 @@ function SubNavItem({
   icon,
   active,
   menuOpen,
-  close,
+  onClick,
 }: SubNavItemProps) {
   return (
     <NavLink
       to={to}
-      onClick={() => {
-        if (!menuOpen) {
-          close();
-        }
-      }}
+      onClick={onClick}
       className={`
         flex h-10 items-center rounded-md px-1
         hover:bg-gray-100
@@ -97,7 +99,7 @@ type MobileNavItemProps = {
   to: string;
   label: string;
   icon?: ReactNode;
-  active?: boolean;
+  active: boolean;
 };
 
 function MobileNavItem({
@@ -118,7 +120,6 @@ function MobileNavItem({
       `}
     >
       {icon}
-      <span>{label}</span>
     </NavLink>
   );
 }
@@ -127,37 +128,34 @@ type MobileSubNavItemProps = {
   to: string;
   label: string;
   icon?: ReactNode;
-  close: () => void;
+  active: boolean;
+  onClick: () => void;
 };
 
 function MobileSubNavItem({
   to,
   label,
   icon,
-  close,
+  active,
+  onClick,
 }: MobileSubNavItemProps) {
   return (
     <NavLink
       to={to}
-      onClick={close}
-      className={({ isActive }) => `
+      onClick={onClick}
+      className={`
         flex h-12 items-center gap-3 rounded-md px-3
         hover:bg-gray-100
-        ${isActive ? "bg-gray-200 font-semibold" : ""}
+        ${active
+          ? "bg-gray-200 font-semibold"
+          : ""}
       `}
     >
       {icon}
-      <span>{label}</span>
+        <span>{label}</span>
     </NavLink>
   );
 }
-
-export type RouterMenuItemProps = {
-  to: string;
-  label: string;
-  icon?: ReactNode;
-  exact?: boolean;
-};
 
 export function RouterMenuItem({
   to,
@@ -193,7 +191,7 @@ export function RouterMenuItem({
           icon={icon}
           active={isActive}
           menuOpen={subMenu.menuOpen}
-          close={() => {
+          onClick={() => {
             subMenu.close();
             closeMenu();
           }}
@@ -218,7 +216,7 @@ export function RouterMenuItem({
             active={active}
             open={open}
             onClick={() => {
-              closeDropdown?.();
+              closeDropdown();
               closeMenu();
             }}
           />
@@ -227,18 +225,19 @@ export function RouterMenuItem({
     );
   }
 
-  if (isInsideGroup) {
-    return (
-      <MobileSubNavItem
-        to={to}
-        label={label}
-        icon={icon}
-        close={() => {
-          subMenu.close();
-          closeMenu();
-        }}
-      />
-    );
+ if (isInsideGroup) {
+  return (
+    <MobileSubNavItem
+      to={to}
+      label={label}
+      icon={icon}
+      active={isActive}
+      onClick={() => {
+        subMenu.close();
+        closeMenu();
+      }}
+    />
+  );
   }
 
   return (

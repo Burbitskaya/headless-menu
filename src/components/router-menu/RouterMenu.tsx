@@ -4,7 +4,9 @@ import {
   type ReactNode,
 } from "react";
 import { useLocation } from "react-router-dom";
+
 import { HeadlessMenu } from "../headless-menu/HeadlessMenu";
+
 import {
   Building2,
   ChevronLeft,
@@ -13,9 +15,12 @@ import {
 
 import { RouterMenuItem } from "./RouterMenuItem";
 import { RouterMenuGroup } from "./RouterMenuGroup";
+
 import {
   RouterMenuProvider,
 } from "./RouterMenuContext";
+
+import { useMediaQuery } from "./useMediaQuery";
 
 type DesktopMenuProps = {
   children: ReactNode;
@@ -35,8 +40,18 @@ function DesktopMenu({
       `}
     >
       <div className="relative flex h-full flex-col">
-        <div className="flex h-16 items-center border-b border-gray-200 px-3">
-          <span className="flex w-10 shrink-0 justify-center">
+        <div
+          className="
+            flex h-16 items-center
+            border-b border-gray-200 px-3
+          "
+        >
+          <span
+            className="
+              flex w-10 shrink-0
+              justify-center
+            "
+          >
             <Building2 size={24} />
           </span>
 
@@ -47,7 +62,12 @@ function DesktopMenu({
           )}
         </div>
 
-        <nav className="flex flex-col gap-2 p-2 pt-8">
+        <nav
+          className="
+            flex flex-col gap-2
+            p-2 pt-8
+          "
+        >
           {children}
         </nav>
 
@@ -62,7 +82,12 @@ function DesktopMenu({
                   rounded-md px-3 hover:bg-gray-100
                 "
               >
-                <span className="flex w-10 shrink-0 justify-center">
+                <span
+                  className="
+                    flex w-10 shrink-0
+                    justify-center
+                  "
+                >
                   {open ? (
                     <ChevronLeft size={20} />
                   ) : (
@@ -94,9 +119,11 @@ function MobileMenu({
   return (
     <nav
       className="
-        fixed bottom-0 left-0 right-0 z-40 grid
-        grid-cols-4 border-t border-gray-200
-        bg-white px-2 py-2 shadow-lg md:hidden
+        fixed bottom-0 left-0 right-0 z-40
+        grid grid-cols-4
+        border-t border-gray-200
+        bg-white px-2 py-2
+        shadow-lg md:hidden
       "
     >
       {children}
@@ -117,38 +144,18 @@ function RouterMenuRoot({
   open,
   onOpenChange,
 }: RouterMenuProps) {
-  const location = useLocation();
-  const pathname = location.pathname;
+  const { pathname } = useLocation();
 
-  const [isMobile, setIsMobile] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.innerWidth < 768,
+  const isMobile = useMediaQuery(
+    "(max-width: 767px)",
   );
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener(
-      "resize",
-      handleResize,
-    );
-
-    return () => {
-      window.removeEventListener(
-        "resize",
-        handleResize,
-      );
-    };
-  }, []);
 
   const variant =
     propVariant ??
     (isMobile ? "mobile" : "desktop");
 
-  const isControlled = open !== undefined;
+  const isControlled =
+    open !== undefined;
 
   const [internalOpen, setInternalOpen] =
     useState(() => {
@@ -171,24 +178,32 @@ function RouterMenuRoot({
     });
 
   useEffect(() => {
-    if (!isControlled) {
-      localStorage.setItem(
-        "sidebarOpen",
-        JSON.stringify(internalOpen),
-      );
+    if (isControlled) {
+      return;
     }
-  }, [internalOpen, isControlled]);
+
+    localStorage.setItem(
+      "sidebarOpen",
+      JSON.stringify(internalOpen),
+    );
+  }, [
+    internalOpen,
+    isControlled,
+  ]);
 
   const currentOpen = isControlled
     ? open
     : internalOpen;
 
-  const setCurrentOpen = (value: boolean) => {
+  const setCurrentOpen = (
+    value: boolean,
+  ) => {
     if (isControlled) {
       onOpenChange?.(value);
-    } else {
-      setInternalOpen(value);
+      return;
     }
+
+    setInternalOpen(value);
   };
 
   return (
@@ -205,13 +220,17 @@ function RouterMenuRoot({
               variant,
             }}
           >
-            <DesktopMenu menuOpen={menuOpen}>
-              {children}
-            </DesktopMenu>
-
-            <MobileMenu>
-              {children}
-            </MobileMenu>
+            {variant === "desktop" ? (
+              <DesktopMenu
+                menuOpen={menuOpen}
+              >
+                {children}
+              </DesktopMenu>
+            ) : (
+              <MobileMenu>
+                {children}
+              </MobileMenu>
+            )}
           </RouterMenuProvider>
         )}
       </HeadlessMenu.Panel>
