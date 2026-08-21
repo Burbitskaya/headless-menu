@@ -19,7 +19,6 @@ type MobileNavItemProps = {
 
 function MobileNavItem({
     to,
-    label,
     icon,
     active,
 }: MobileNavItemProps) {
