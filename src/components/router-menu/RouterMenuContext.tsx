@@ -4,9 +4,7 @@ import {
   type ReactNode,
 } from "react";
 
-export type RouterMenuVariant =
-  | "desktop"
-  | "mobile";
+export type RouterMenuVariant = | "desktop" | "mobile";
 
 type RouterMenuContextValue = {
   pathname: string;
@@ -45,6 +43,7 @@ export function useRouterMenu() {
   return ctx;
 }
 
+// Определяет активность пункта по текущему URL
 export function useIsActive(
   pathname: string,
   to: string,

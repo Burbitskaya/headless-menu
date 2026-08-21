@@ -1,9 +1,11 @@
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   useRouterMenu,
   useIsActive,
 } from "./RouterMenuContext";
+
 import { DesktopRouterMenuGroup } from "./group/DesktopRouterMenuGroup";
 import { MobileRouterMenuGroup } from "./group/MobileRouterMenuGroup";
 
@@ -20,10 +22,18 @@ export function RouterMenuGroup({
   icon,
   children,
 }: RouterMenuGroupProps) {
-  const { pathname, variant } = useRouterMenu();
+  const {
+    pathname,
+    variant,
+  } = useRouterMenu();
+
   const navigate = useNavigate();
 
-  const isActive = useIsActive(pathname, to);
+  // Группа считается активной, если текущий путь совпадает с еём или находится внутри него
+  const active = useIsActive(
+    pathname,
+    to,
+  );
 
   const handleNavigate = () => {
     navigate(to);
@@ -33,9 +43,8 @@ export function RouterMenuGroup({
     return (
       <DesktopRouterMenuGroup
         label={label}
-        to={to}
         icon={icon}
-        active={isActive}
+        active={active}
         onNavigate={handleNavigate}
       >
         {children}
@@ -46,9 +55,8 @@ export function RouterMenuGroup({
   return (
     <MobileRouterMenuGroup
       label={label}
-      to={to}
       icon={icon}
-      active={isActive}
+      active={active}
     >
       {children}
     </MobileRouterMenuGroup>

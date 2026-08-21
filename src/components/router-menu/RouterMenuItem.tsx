@@ -29,6 +29,7 @@ export function RouterMenuItem({
   const subMenu = useSubMenu();
   const isInsideGroup = subMenu !== null;
 
+  // Для пунктов внутри группы по умолчанию используем точное совпадение
   const effectiveExact = isInsideGroup
     ? exact ?? true
     : exact ?? false;
@@ -39,6 +40,7 @@ export function RouterMenuItem({
     effectiveExact,
   );
 
+  // После перехода закрываем подменю и основное меню
   const handleClick = () => {
     if (isInsideGroup) {
       subMenu.close();

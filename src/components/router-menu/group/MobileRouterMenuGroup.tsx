@@ -17,6 +17,7 @@ export function MobileRouterMenuGroup({
   children,
 }: MobileRouterMenuGroupProps) {
   return (
+    // Активная группа автоматически открывается при открытии меню
     <HeadlessMenu.Dropdown active={active}>
       <HeadlessMenu.DropdownTrigger>
         {({ toggle }) => (
@@ -40,8 +41,8 @@ export function MobileRouterMenuGroup({
       </HeadlessMenu.DropdownTrigger>
 
       <HeadlessMenu.DropdownContent>
-        {({ open, close }) =>
-          open ? (
+        {({ dropdownOpen, close }) =>
+          dropdownOpen ? (
             <div
               className="
                 fixed bottom-0 left-0 right-0 z-50

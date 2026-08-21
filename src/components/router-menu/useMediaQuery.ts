@@ -16,6 +16,8 @@ export function useMediaQuery(query: string) {
       setMatches(mediaQuery.matches);
     };
 
+    // Синхронизируем состояние после монтирования
+
     handleChange();
 
     mediaQuery.addEventListener(
@@ -23,6 +25,7 @@ export function useMediaQuery(query: string) {
       handleChange,
     );
 
+    // Удаляем подписку при размонтировании или изменении
     return () => {
       mediaQuery.removeEventListener(
         "change",

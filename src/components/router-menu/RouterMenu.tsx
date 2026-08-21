@@ -4,7 +4,6 @@ import {
   type ReactNode,
 } from "react";
 import { useLocation } from "react-router-dom";
-
 import { HeadlessMenu } from "../headless-menu/HeadlessMenu";
 
 import {
@@ -21,6 +20,7 @@ import {
 } from "./RouterMenuContext";
 
 import { useMediaQuery } from "./useMediaQuery";
+
 
 type DesktopMenuProps = {
   children: ReactNode;
@@ -149,11 +149,11 @@ function RouterMenuRoot({
   const isMobile = useMediaQuery(
     "(max-width: 767px)",
   );
-
+  // Вариант можно задать явно или определить автоматически
   const variant =
     propVariant ??
     (isMobile ? "mobile" : "desktop");
-
+  // чтобы состояние меню можно было контролировать снаружи
   const isControlled =
     open !== undefined;
 
@@ -177,6 +177,8 @@ function RouterMenuRoot({
       }
     });
 
+
+  // чтобы после перезагрузки сохранить выбор пользователя
   useEffect(() => {
     if (isControlled) {
       return;
