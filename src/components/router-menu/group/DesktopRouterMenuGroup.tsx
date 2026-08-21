@@ -9,7 +9,6 @@ import { SubMenuProvider } from "../SubMenuContext";
 
 type DesktopRouterMenuGroupProps = {
   label: string;
-  to: string;
   icon?: ReactNode;
   active: boolean;
   onNavigate: () => void;
@@ -18,7 +17,6 @@ type DesktopRouterMenuGroupProps = {
 
 export function DesktopRouterMenuGroup({
   label,
-  to,
   icon,
   active,
   onNavigate,
@@ -27,7 +25,6 @@ export function DesktopRouterMenuGroup({
   return (
     <div className="relative">
       <HeadlessMenu.Dropdown
-        id={to}
         active={active}
       >
         <HeadlessMenu.DropdownTrigger>

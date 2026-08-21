@@ -5,7 +5,6 @@ import { SubMenuProvider } from "../SubMenuContext";
 
 type MobileRouterMenuGroupProps = {
   label: string;
-  to: string;
   icon?: ReactNode;
   active: boolean;
   children: ReactNode;
@@ -13,15 +12,12 @@ type MobileRouterMenuGroupProps = {
 
 export function MobileRouterMenuGroup({
   label,
-  to,
   icon,
   active,
   children,
 }: MobileRouterMenuGroupProps) {
   return (
-    <HeadlessMenu.Dropdown
-      id={`mobile-${to}`}
-    >
+    <HeadlessMenu.Dropdown active={active}>
       <HeadlessMenu.DropdownTrigger>
         {({ toggle }) => (
           <button
@@ -31,9 +27,11 @@ export function MobileRouterMenuGroup({
               flex w-full flex-col items-center
               justify-center gap-1 rounded-md
               px-1 py-2 text-xs
-              ${active
-                ? "bg-gray-200 font-semibold"
-                : "hover:bg-gray-100"}
+              ${
+                active
+                  ? "bg-gray-200 font-semibold"
+                  : "hover:bg-gray-100"
+              }
             `}
           >
             {icon}
